@@ -13,7 +13,9 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      nodeIntegration: true,
+      contextIsolation: false
     }
   })
 
@@ -72,3 +74,13 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+import { executeAdbCommand } from './adbUtils'
+
+// Add IPC handler for ADB commands
+ipcMain.handle('adb:execute', async (_, command) => {
+  try {
+    return await executeAdbCommand(command)
+  } catch (error) {
+    return { error: (error as Error).message }
+  }
+})

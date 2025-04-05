@@ -1,22 +1,15 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+// src/preload/index.ts (add to your existing preload)
+import { contextBridge, ipcRenderer } from 'electron'
 
-// Custom APIs for renderer
-const api = {}
+// Expose project management API to renderer
+contextBridge.exposeInMainWorld('projectAPI', {
+  saveProject: (project) => ipcRenderer.invoke('project:save', project),
+  getProject: (projectId) => ipcRenderer.invoke('project:get', projectId),
+  getAllProjects: () => ipcRenderer.invoke('project:getAll'),
+  deleteProject: (projectId) => ipcRenderer.invoke('project:delete', projectId)
+})
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
-}
+// Expose ADB API
+contextBridge.exposeInMainWorld('adbAPI', {
+  executeCommand: (command) => ipcRenderer.invoke('adb:execute', command)
+})
