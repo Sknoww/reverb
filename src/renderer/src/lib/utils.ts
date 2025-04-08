@@ -5,8 +5,8 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
 }
 
-import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 export function useNavigationLock(cooldownMs = 300) {
   const [isNavigating, setIsNavigating] = useState(false)

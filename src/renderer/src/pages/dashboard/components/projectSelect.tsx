@@ -18,23 +18,25 @@ export function ProjectSelect({
 }) {
   function generateProjectDropdownItems(projects: Project[]) {
     return projects.map((project) => (
-      <DropdownMenuItem key={project.id}>{project.name}</DropdownMenuItem>
+      <DropdownMenuItem className="hover:bg-zinc-400 cursor-pointer" key={project.id}>
+        {project.name}
+      </DropdownMenuItem>
     ))
   }
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 h-12">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost">
+            <Button variant="ghost" className="text-xl">
               {currentProject.name != null ? currentProject.name : 'No project selected'}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start">
+          <DropdownMenuContent className="w-56 " align="start">
             <DropdownMenuGroup>{generateProjectDropdownItems(projects)}</DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>Browse...</DropdownMenuItem>
+              <DropdownMenuItem className=" cursor-pointer">Browse...</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

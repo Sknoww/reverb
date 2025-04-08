@@ -1,7 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import { app, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
 import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+
+nativeTheme.themeSource = 'dark'
 
 function createWindow(): void {
   // Create the browser window.
@@ -16,7 +18,8 @@ function createWindow(): void {
       sandbox: false,
       nodeIntegration: true,
       contextIsolation: false
-    }
+    },
+    backgroundColor: '#535657'
   })
 
   mainWindow.on('ready-to-show', () => {

@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button'
-import { useNavigationLock } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { useNavigationLock } from '@/lib/utils'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 
 export function ContextMenu() {
@@ -19,9 +19,11 @@ export function ContextMenu() {
             <BsThreeDotsVertical />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end">
+        <DropdownMenuContent className="w-56 " align="end">
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => safeNavigate('/settings')}>Settings</DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => safeNavigate('/settings')}>
+              Settings
+            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

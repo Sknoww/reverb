@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/renderer/src/**/*.{js,ts,jsx,tsx}'],
+  // Enable dark mode using class strategy
+  darkMode: 'class',
   theme: {
     container: {
       center: true,
