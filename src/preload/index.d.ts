@@ -21,8 +21,10 @@ interface Window {
   }
 }
 
-interface Settings {
+interface Config {
   saveLocation: string
+  recentProjectId: string
+  mostRecentProjectIds: string[]
   // Add other settings as needed
 }
 
@@ -30,13 +32,12 @@ declare global {
   interface Window {
     // Your existing declarations...
 
-    settingsAPI: {
-      getSettings: () => Promise<Settings>
-      saveSettings: (settings: Partial<Settings>) => Promise<boolean>
+    configAPI: {
+      getConfig: () => Promise<Config>
+      saveConfig: (config: Partial<Config>) => Promise<boolean>
       selectSaveLocation: () => Promise<string | null>
       notifySaveLocationChanged: (location: string) => void
+      updateRecentProjectId: (projectId: string) => void
     }
   }
 }
-
-export {}

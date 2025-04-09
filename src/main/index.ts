@@ -6,16 +6,18 @@ import icon from '../../resources/icon.png?asset'
 
 nativeTheme.themeSource = 'dark'
 
-const settingsFilePath = path.join(app.getPath('userData'), 'settings.json')
-const defaultSettings = {
-  saveLocation: path.join(app.getPath('userData'), 'projects')
+const configFilePath = path.join(app.getPath('userData'), 'config.json')
+const defaultConfig = {
+  saveLocation: path.join(app.getPath('userData'), 'projects'),
+  recentProjectId: '',
+  mostRecentProjectIds: []
 }
 
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1200,
+    height: 900,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -86,6 +88,14 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 import { executeAdbCommand } from './adbUtils'
+import {
+  deleteProject,
+  getAllProjects,
+  getProject,
+  saveProject,
+  setProjectsDirectory
+} from './dataManager'
+import { Config } from './types'
 
 // Add IPC handler for ADB commands
 ipcMain.handle('adb:execute', async (_, command) => {
@@ -96,42 +106,53 @@ ipcMain.handle('adb:execute', async (_, command) => {
   }
 })
 
-//SETTINGS
-// Load settings
-const loadSettings = () => {
+//CONFIG
+// Load config
+const loadConfig = () => {
   try {
-    if (fs.existsSync(settingsFilePath)) {
-      return JSON.parse(fs.readFileSync(settingsFilePath, 'utf-8'))
+    if (fs.existsSync(configFilePath)) {
+      return JSON.parse(fs.readFileSync(configFilePath, 'utf-8'))
     }
   } catch (error) {
-    console.error('Failed to load settings:', error)
+    console.error('Failed to load config:', error)
   }
 
   // If we couldn't load settings, create with defaults and save
-  fs.writeFileSync(settingsFilePath, JSON.stringify(defaultSettings, null, 2))
-  return defaultSettings
+  fs.writeFileSync(configFilePath, JSON.stringify(defaultConfig, null, 2))
+  return defaultConfig
+}
+
+// Save config
+const saveConfig = (config: Config) => {
+  try {
+    fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2))
+
+    if (config.saveLocation) {
+      setProjectsDirectory(config.saveLocation)
+    }
+
+    return true
+  } catch (error) {
+    console.error('Failed to save config:', error)
+    return false
+  }
 }
 
 // Set up IPC handlers
 function setupIPC() {
-  // Get settings
-  ipcMain.handle('settings:get', () => {
-    console.log('Received settings:get request')
-    const settings = loadSettings()
-    console.log('Returning settings:', settings)
-    return settings
+  // Get config
+  ipcMain.handle('config:get', () => {
+    console.log('Received config:get request')
+    const config = loadConfig()
+    setProjectsDirectory(config.saveLocation)
+    console.log('Returning config:', config)
+    return config
   })
 
-  // Save settings
-  ipcMain.handle('settings:save', (_, newSettings) => {
-    console.log('Saving settings:', newSettings)
-    try {
-      fs.writeFileSync(settingsFilePath, JSON.stringify(newSettings, null, 2))
-      return true
-    } catch (error) {
-      console.error('Failed to save settings:', error)
-      return false
-    }
+  // Save config
+  ipcMain.handle('config:save', (_, newConfig) => {
+    console.log('Saving config:', newConfig)
+    return saveConfig(newConfig)
   })
 
   // Select folder dialog
@@ -147,4 +168,23 @@ function setupIPC() {
     }
     return null
   })
+
+  // Update recent project ID
+  ipcMain.handle('config:recentProjectId', (_, projectId) => {
+    console.log('Updating recent project ID:', projectId)
+    const newConfig = { ...loadConfig(), recentProjectId: projectId }
+    try {
+      fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2))
+    } catch (error) {
+      console.error('Failed to update recent project ID:', error)
+    }
+  })
+
+  // Set up project-related IPC handlers
+  ipcMain.handle('project:save', (_, project) => saveProject(project))
+  ipcMain.handle('project:get', (_, projectId) => getProject(projectId))
+  ipcMain.handle('project:getAll', () => getAllProjects())
+  ipcMain.handle('project:delete', (_, projectId) => deleteProject(projectId))
+
+  console.log('All IPC handlers registered')
 }

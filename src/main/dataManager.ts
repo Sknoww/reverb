@@ -33,6 +33,8 @@ export const saveProject = (project: Project): void => {
 }
 
 export const getProject = (projectId: string): Project | null => {
+  console.log('Getting project:', projectId)
+  console.log('Projects dir:', projectsDir)
   const filePath = path.join(projectsDir, `${projectId}.json`)
   if (!fs.existsSync(filePath)) return null
 

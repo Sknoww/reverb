@@ -1,17 +1,18 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useNavigationLock } from '@/lib/utils'
+import { Config } from '@/types'
 import { useEffect, useState } from 'react'
 
 export function Settings() {
   const { isNavigating, safeNavigate } = useNavigationLock()
-  const [settings, setSettings] = useState({ saveLocation: '' })
+  const [config, setConfig] = useState<Config>({ saveLocation: '', recentProjectId: '' })
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     async function loadSettings() {
-      const loadedSettings = await window.settingsAPI.getSettings()
-      setSettings(loadedSettings)
+      const loadedSettings = await window.configAPI.getConfig()
+      setConfig(loadedSettings)
       setIsLoading(false)
     }
 
@@ -19,15 +20,15 @@ export function Settings() {
   }, [])
 
   const handleSelectLocation = async () => {
-    const selectedPath = await window.settingsAPI.selectSaveLocation()
+    const selectedPath = await window.configAPI.selectSaveLocation()
 
     if (selectedPath) {
-      const newSettings = { ...settings, saveLocation: selectedPath }
-      setSettings(newSettings)
+      const newSettings = { ...config, saveLocation: selectedPath }
+      setConfig(newSettings)
 
-      const success = await window.settingsAPI.saveSettings(newSettings)
+      const success = await window.configAPI.saveConfig(newSettings)
       if (success) {
-        window.settingsAPI.notifySaveLocationChanged(selectedPath)
+        window.configAPI.notifySaveLocationChanged(selectedPath)
       }
     }
   }
@@ -45,7 +46,7 @@ export function Settings() {
         <div className="flex items-center">
           <Input
             type="text"
-            value={settings.saveLocation}
+            value={config.saveLocation}
             readOnly
             className="flex-1 p-2 border rounded mr-2"
           />

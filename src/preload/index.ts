@@ -15,10 +15,10 @@ contextBridge.exposeInMainWorld('adbAPI', {
 })
 
 // src/preload/index.ts (add to your existing code)
-contextBridge.exposeInMainWorld('settingsAPI', {
-  getSettings: () => ipcRenderer.invoke('settings:get'),
-  saveSettings: (settings) => ipcRenderer.invoke('settings:save', settings),
+contextBridge.exposeInMainWorld('configAPI', {
+  getConfig: () => ipcRenderer.invoke('config:get'),
+  saveConfig: (config) => ipcRenderer.invoke('config:save', config),
   selectSaveLocation: () => ipcRenderer.invoke('dialog:selectFolder'),
-  notifySaveLocationChanged: (location) =>
-    ipcRenderer.send('settings:saveLocationChanged', location)
+  notifySaveLocationChanged: (location) => ipcRenderer.send('config:saveLocationChanged', location),
+  updateRecentProjectId: (projectId) => ipcRenderer.send('config:recentProjectId', projectId)
 })

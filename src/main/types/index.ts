@@ -3,7 +3,8 @@ export interface AdbCommand {
   id: string
   name: string
   keyword: string
-  command: string
+  type: string
+  value: string
   description?: string
 }
 
@@ -14,4 +15,10 @@ export interface Project {
   createdAt: string
   updatedAt: string
   commands: AdbCommand[]
+}
+
+export interface Config {
+  saveLocation: string
+  recentProjectId: string
+  mostRecentProjectIds: string[]
 }

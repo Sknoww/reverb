@@ -1,17 +1,56 @@
 import { MainContainer } from '@/components/mainContainer'
 import { Separator } from '@/components/ui/separator'
-import { AdbCommand, Project } from '@/types'
+import { AdbCommand, Config, Project } from '@/types'
 import { useEffect, useState } from 'react'
 import { CommandModal } from './components/commandModal'
 import { CommandSidebar } from './components/commandSidebar'
+import { CommandTable } from './components/commandTable'
 import { ContextMenu } from './components/contextMenu'
 import { InputCard } from './components/inputCard'
-import { KeywordTable } from './components/keywordTable'
-import { ProjectSelect } from './components/projectSelect'
+import { ProjectMenu } from './components/projectSelect'
 
 export function Dashboard() {
   const [selectedCommand, setSelectedCommand] = useState<AdbCommand | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const [config, setConfig] = useState<Config>({
+    saveLocation: '',
+    recentProjectId: '',
+    mostRecentProjectIds: []
+  })
+  const [project, setProject] = useState<Project | null>(null)
+  const [projects, setProjects] = useState<Project[] | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    async function loadconfig() {
+      const loadedconfig = await window.configAPI.getConfig()
+      setConfig(loadedconfig)
+    }
+
+    async function loadProject() {
+      if (config.recentProjectId && config.recentProjectId !== '') {
+        const loadedProject = await window.projectAPI.getProject(config.recentProjectId)
+        setProject(loadedProject)
+      }
+    }
+
+    async function loadProjects() {
+      const loadedProjects = await window.projectAPI.getAllProjects()
+      setProjects(loadedProjects)
+    }
+
+    loadconfig().then(() => {
+      loadProject().then(() => {
+        loadProjects().then(() => {
+          setIsLoading(false)
+        })
+      })
+    })
+  }, [])
+
+  if (isLoading) {
+    return <div>Loading settings...</div>
+  }
 
   const handleCloseModal = () => {
     setModalOpen(false)
@@ -27,53 +66,6 @@ export function Dashboard() {
     // to update the state, something like: onUpdateCommand(updatedCommand)
   }
 
-  const projects: Project[] = [
-    {
-      name: 'Project 1',
-      id: '1',
-      description: 'This is a project description',
-      createdAt: new Date().toString(),
-      updatedAt: new Date().toString(),
-      commands: []
-    },
-    {
-      name: 'Project 2',
-      id: '2',
-      description: 'This is a project description 2',
-      createdAt: new Date().toString(),
-      updatedAt: new Date().toString(),
-      commands: []
-    }
-  ]
-
-  const [keywords, setKeywords] = useState<AdbCommand[]>([])
-
-  useEffect(() => {
-    setKeywords([
-      {
-        id: '1',
-        name: 'adb shell pm list packages',
-        keyword: 'adb shell pm list packages',
-        command: 'adb shell pm list packages',
-        description: 'command 1'
-      },
-      {
-        id: '2',
-        name: 'adb shell pm list packages',
-        keyword: 'adb shell pm list packages',
-        command: 'adb shell pm list packages',
-        description: 'command 2'
-      },
-      {
-        id: '3',
-        name: 'adb shell pm list packages',
-        keyword: 'adb shell pm list packages',
-        command: 'adb shell pm list packages',
-        description: 'command 3'
-      }
-    ])
-  }, [])
-
   return (
     <>
       <div className="w-screen h-screen">
@@ -81,7 +73,7 @@ export function Dashboard() {
           <div className="flex flex-row w-full h-full">
             <div className="flex-0 flex-col w-full h-full px-5 gap-5">
               <div className="flex items-start justify-between w-full">
-                <ProjectSelect currentProject={projects[0]} projects={projects} />
+                <ProjectMenu currentProject={project} projects={projects} />
                 <ContextMenu />
               </div>
               <div>
@@ -95,10 +87,10 @@ export function Dashboard() {
               </div>
               <div className="flex flex-col gap-5">
                 <div className="pt-5">
-                  <KeywordTable keywords={keywords} header="Barcodes" />
+                  <CommandTable commands={project?.commands} header="Barcodes" type="barcode" />
                 </div>
                 <div>
-                  <KeywordTable keywords={keywords} header="Speech" />
+                  <CommandTable commands={project?.commands} header="Speech" type="speech" />
                 </div>
               </div>
             </div>
