@@ -44,7 +44,7 @@ export function KeywordTable({ keywords, header }: { keywords: AdbCommand[]; hea
       <div className="flex flex-row justify-between items-center mb-3">
         <span className="text-lg">{header}</span>
         <div
-          className="hover:bg-accent rounded-full p-1 cursor-pointer"
+          className="rounded-full p-1 cursor-pointer hover:bg-primary"
           onClick={() => handleAddCommand()}
         >
           <LuCirclePlus size={25} />

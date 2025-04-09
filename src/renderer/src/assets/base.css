@@ -62,76 +62,75 @@
 
 @layer base {
   :root {
-    /* Your existing variables */
-    --primary: 260 26% 75%; /* #B7ADCF */
-    --primary-foreground: 210 100% 98%; /* #F4FAFF */
+    /* Updated color scheme using your specified colors */
+    /* Black: #222222 - converted to HSL: 0 0% 13.3% */
+    /* White: #FCF8F8 - converted to HSL: 0 20% 98% */
+    /* Violet: #4B4E6D - converted to HSL: 235 17.8% 36.3% */
 
-    --secondary: 200 17% 37%; /* #4F646F */
-    --secondary-foreground: 210 100% 98%; /* #F4FAFF */
+    --background: 0 0% 13.3%; /* #222222 */
+    --foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --background: 180 2% 33%; /* #535657 */
-    --foreground: 210 100% 98%; /* #F4FAFF */
+    --primary: 235 17.8% 36.3%; /* #4B4E6D */
+    --primary-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    /* Updated border/input variables for better contrast */
-    --border: 200 17% 50%; /* Lighter variant of secondary */
-    --input: 200 17% 50%; /* Lighter variant of secondary */
-    --ring: 260 26% 75%; /* Your primary #B7ADCF */
+    --secondary: 235 17.8% 45%; /* Lighter variant of #4B4E6D */
+    --secondary-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    /* Other variables remain the same */
-    --card: 180 2% 33%;
-    --card-foreground: 210 100% 98%;
-    --popover: 180 2% 33%;
-    --popover-foreground: 210 100% 98%;
-    --muted: 200 17% 37%;
-    --muted-foreground: 210 100% 90%;
-    --accent: 260 26% 75%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 100% 98%;
+    --border: 0 20% 98%; /* #FCF8F8 */
+    --input: 0 20% 98%; /* #FCF8F8 */
+    --ring: 235 17.8% 36.3%; /* #4B4E6D */
+
+    /* Other variables updated to match the new theme */
+    --card: 0 0% 13.3%; /* #222222 */
+    --card-foreground: 0 20% 98%; /* #FCF8F8 */
+
+    --popover: 0 0% 13.3%; /* #222222 */
+    --popover-foreground: 0 20% 98%; /* #FCF8F8 */
+
+    --muted: 0 0% 20%; /* Slightly lighter than background for contrast */
+    --muted-foreground: 0 20% 98%; /* Slightly darker than foreground */
+
+    --accent: 235 17.8% 36.3%; /* #4B4E6D */
+    --accent-foreground: 0 20% 98%; /* #FCF8F8 */
+
+    --destructive: 0 62.8% 30.6%; /* Keeping the original destructive color */
+    --destructive-foreground: 0 20% 98%; /* #FCF8F8 */
+
     --radius: 0.5rem;
   }
 }
-
-/* We're setting dark mode variables as the default,
-     but if you need light mode override, uncomment this
-  .light {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    ...etc
-  }
-  */
 
 /* Force dark theme even when system is set to light */
 @media (prefers-color-scheme: light) {
   :root {
     /* Same values as above - ensures light mode is overridden */
-    --primary: 260 26% 75%;
-    --primary-foreground: 210 100% 98%;
+    --background: 0 0% 13.3%; /* #222222 */
+    --foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --secondary: 200 17% 37%;
-    --secondary-foreground: 210 100% 98%;
+    --primary: 235 17.8% 36.3%; /* #4B4E6D */
+    --primary-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --background: 180 2% 33%;
-    --foreground: 210 100% 98%;
+    --secondary: 235 17.8% 45%; /* Lighter variant of #4B4E6D */
+    --secondary-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --card: 180 2% 33%;
-    --card-foreground: 210 100% 98%;
+    --card: 0 0% 13.3%; /* #222222 */
+    --card-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --popover: 180 2% 33%;
-    --popover-foreground: 210 100% 98%;
+    --popover: 0 0% 13.3%; /* #222222 */
+    --popover-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --muted: 200 17% 37%;
-    --muted-foreground: 210 100% 90%;
+    --muted: 0 0% 20%; /* Slightly lighter than background for contrast */
+    --muted-foreground: 0 20% 98%; /* Slightly darker than foreground */
 
-    --accent: 260 26% 75%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 235 17.8% 36.3%; /* #4B4E6D */
+    --accent-foreground: 0 20% 98%; /* #FCF8F8 */
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 100% 98%;
+    --destructive-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --border: 200 17% 37%;
-    --input: 200 17% 37%;
-    --ring: 260 26% 75%;
+    --border: 0 20% 98%; /* #FCF8F8 */
+    --input: 0 20% 98%; /* #FCF8F8 */
+    --ring: 235 17.8% 36.3%; /* #4B4E6D */
   }
 }
 
@@ -140,7 +139,8 @@
 /* Set all text to use foreground color */
 html,
 body {
-  color: #f4faff !important;
+  color: #fcf8f8 !important;
+  background-color: #222222 !important;
 }
 
 /* Target all common text elements */
@@ -168,7 +168,7 @@ blockquote,
 cite,
 code,
 pre {
-  color: #f4faff !important;
+  color: #fcf8f8 !important;
 }
 
 /* Override any shadcn text colors */
@@ -179,7 +179,7 @@ pre {
 .text-accent-foreground,
 .text-popover-foreground,
 .text-card-foreground {
-  color: #f4faff !important;
+  color: #fcf8f8 !important;
 }
 
 /* Handle exceptions where you might want different color text */
@@ -187,14 +187,39 @@ pre {
   color: hsl(var(--destructive)) !important;
 }
 
-/* Handle any specific components with hard-coded colors */
-[class*='text-'] {
-  color: #f4faff !important;
+/* Input focus states - These are crucial for selection border changes */
+input:focus,
+textarea:focus,
+select:focus,
+.input:focus-visible,
+[data-cmdk-input]:focus-visible,
+[class*='input']:focus-visible,
+[data-state='focused'] {
+  border-color: #4b4e6d !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(75, 78, 109, 0.4) !important;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease !important;
 }
 
-/* Exclude specific elements if needed */
-/*
-.some-special-element {
-  color: initial !important;
+tr:hover,
+.tr:hover,
+tbody tr:hover,
+table tr:hover,
+[role='row']:hover {
+  background-color: #2a2a2a !important; /* Slightly lighter than #222222 */
+  transition: background-color 0.2s ease;
 }
-*/
+
+/* For shadcn tables specifically */
+.data-[state='selected']:hover,
+[data-state='selected']:hover {
+  background-color: #2a2a2a !important;
+}
+
+/* Any other table-specific hover states */
+.table-row:hover,
+.hover\:bg-muted:hover {
+  background-color: #2a2a2a !important;
+}

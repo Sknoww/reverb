@@ -1,7 +1,8 @@
+import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
+import { ScrollArea } from './components/ui/scroll-area'
 import Dashboard from './pages/dashboard/Dashboard'
 import Settings from './pages/Settings'
-import { useEffect } from 'react'
 
 function App(): JSX.Element {
   useEffect(() => {
@@ -10,10 +11,12 @@ function App(): JSX.Element {
 
   return (
     <div className="app">
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
+      <ScrollArea>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </ScrollArea>
     </div>
   )
 }

@@ -1,11 +1,26 @@
 // src/main/projectManager.ts
+import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
-import { app } from 'electron'
 import { Project } from './types'
 
-// Projects directory within user data folder
-const projectsDir = path.join(app.getPath('userData'), 'projects')
+// Instead of a constant, use a variable that can be updated
+let projectsDir = path.join(app.getPath('userData'), 'projects')
+
+// Function to update the projects directory
+export const setProjectsDirectory = (directory: string): void => {
+  projectsDir = directory
+
+  // Create projects directory if it doesn't exist
+  if (!fs.existsSync(projectsDir)) {
+    fs.mkdirSync(projectsDir, { recursive: true })
+  }
+}
+
+// Initialize the directory
+if (!fs.existsSync(projectsDir)) {
+  fs.mkdirSync(projectsDir, { recursive: true })
+}
 
 // Create projects directory if it doesn't exist
 if (!fs.existsSync(projectsDir)) {

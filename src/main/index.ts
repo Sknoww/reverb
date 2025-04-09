@@ -1,9 +1,15 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
-import { join } from 'path'
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell } from 'electron'
+import fs from 'fs'
+import path, { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 
 nativeTheme.themeSource = 'dark'
+
+const settingsFilePath = path.join(app.getPath('userData'), 'settings.json')
+const defaultSettings = {
+  saveLocation: path.join(app.getPath('userData'), 'projects')
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -17,7 +23,7 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: true
     },
     backgroundColor: '#535657'
   })
@@ -64,6 +70,8 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  setupIPC()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -87,3 +95,56 @@ ipcMain.handle('adb:execute', async (_, command) => {
     return { error: (error as Error).message }
   }
 })
+
+//SETTINGS
+// Load settings
+const loadSettings = () => {
+  try {
+    if (fs.existsSync(settingsFilePath)) {
+      return JSON.parse(fs.readFileSync(settingsFilePath, 'utf-8'))
+    }
+  } catch (error) {
+    console.error('Failed to load settings:', error)
+  }
+
+  // If we couldn't load settings, create with defaults and save
+  fs.writeFileSync(settingsFilePath, JSON.stringify(defaultSettings, null, 2))
+  return defaultSettings
+}
+
+// Set up IPC handlers
+function setupIPC() {
+  // Get settings
+  ipcMain.handle('settings:get', () => {
+    console.log('Received settings:get request')
+    const settings = loadSettings()
+    console.log('Returning settings:', settings)
+    return settings
+  })
+
+  // Save settings
+  ipcMain.handle('settings:save', (_, newSettings) => {
+    console.log('Saving settings:', newSettings)
+    try {
+      fs.writeFileSync(settingsFilePath, JSON.stringify(newSettings, null, 2))
+      return true
+    } catch (error) {
+      console.error('Failed to save settings:', error)
+      return false
+    }
+  })
+
+  // Select folder dialog
+  ipcMain.handle('dialog:selectFolder', async () => {
+    console.log('Opening folder selection dialog')
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openDirectory', 'createDirectory'],
+      title: 'Select Save Location'
+    })
+
+    if (!canceled && filePaths.length > 0) {
+      return filePaths[0]
+    }
+    return null
+  })
+}
