@@ -26,7 +26,10 @@ contextBridge.exposeInMainWorld('configAPI', {
   updateRecentProjectIds: (previousProjectId, newProjectId) =>
     ipcRenderer.invoke('config:recentProjectIds', previousProjectId, newProjectId),
   notifyRecentProjectIdsChanged: (projectIds) =>
-    ipcRenderer.send('config:recentProjectIdsChanged', projectIds)
+    ipcRenderer.send('config:recentProjectIdsChanged', projectIds),
+  updateCommonCommands: (commands) => ipcRenderer.invoke('config:commonCommands', commands),
+  notifyCommonCommandsChanged: (commands) =>
+    ipcRenderer.send('config:commonCommandsChanged', commands)
 })
 
 contextBridge.exposeInMainWorld('dialogAPI', {

@@ -17,9 +17,9 @@ import { useEffect, useState } from 'react'
 interface ProjectModalProps {
   isOpen: boolean
   onClose: () => void
-  project?: Project | null // Optional - will be null/undefined for new commands
+  project?: Project | null
   onSave: (project: Project, isNewProject: boolean) => void
-  title?: string // Allow custom title for different use cases,
+  title?: string
   error?: boolean
 }
 

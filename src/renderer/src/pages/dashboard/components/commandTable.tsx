@@ -7,59 +7,60 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { AdbCommand } from '@/types'
-import { useState } from 'react'
-import { LuCirclePlus } from 'react-icons/lu'
-import { CommandModal } from './commandModal'
+import { LuCircleMinus, LuCirclePlay, LuCirclePlus, LuPencil } from 'react-icons/lu'
 
 export function CommandTable({
   commands,
   header,
-  type
+  type,
+  setIsEditingCommand,
+  handleAddCommand,
+  handleEditCommand,
+  handleShowDeleteModal
 }: {
   commands: AdbCommand[] | undefined
   header: string
   type: string
+  setIsEditingCommand: (isEditingCommand: boolean) => void
+  handleAddCommand: (isCommon: boolean, inputValue?: string, type?: string) => void
+  handleEditCommand: (command: AdbCommand | null, isCommon: boolean) => void
+  handleShowDeleteModal: (command: AdbCommand) => void
 }) {
-  const [selectedCommand, setSelectedCommand] = useState<AdbCommand | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
-
-  const handleRowClick = (command: AdbCommand) => {
-    setSelectedCommand(command)
-    setModalOpen(true)
-  }
-
-  const handleAddCommand = () => {
-    setSelectedCommand(null)
-    setModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setModalOpen(false)
-    setSelectedCommand(null)
-  }
-
-  const handleSaveCommand = (updatedCommand: AdbCommand) => {
-    // Here you would update your commands in your state or database
-    // This is just an example - you'll need to implement the actual update logic
-    console.log('Saving updated command:', updatedCommand)
-    setModalOpen(false)
-    // You would typically call a function passed down from the parent component
-    // to update the state, something like: onUpdateCommand(updatedCommand)
+  const addDeleteEditAndRunButtonsToRow = (command: AdbCommand) => {
+    return (
+      <div className="flex items-end justify-end gap-2">
+        <LuCircleMinus
+          size={25}
+          onClick={() => handleShowDeleteModal(command)}
+          className="cursor-pointer hover:text-red-500"
+        />
+        <LuPencil
+          size={25}
+          onClick={() => {
+            setIsEditingCommand(true)
+            handleEditCommand(command, false)
+          }}
+          className="cursor-pointer hover:text-primary"
+        />
+        <LuCirclePlay
+          size={25}
+          onClick={() => {}}
+          className="cursor-pointer hover:text-green-500"
+        />
+      </div>
+    )
   }
 
   const handleLoadCommands = () => {
     const filteredCommands = commands?.filter((command) => command.type === type)
     if (filteredCommands) {
       return filteredCommands.map((command) => (
-        <TableRow
-          key={command.id}
-          onClick={() => handleRowClick(command)}
-          className="cursor-pointer hover:bg-gray-100"
-        >
+        <TableRow key={command.keyword} className="hover:bg-transparent">
           <TableCell className="font-medium">{command.name}</TableCell>
           <TableCell>{command.keyword}</TableCell>
           <TableCell>{command.value}</TableCell>
           <TableCell className="text-right">{command.description}</TableCell>
+          <TableCell className="text-right">{addDeleteEditAndRunButtonsToRow(command)}</TableCell>
         </TableRow>
       ))
     } else {
@@ -73,7 +74,7 @@ export function CommandTable({
         <span className="text-lg">{header}</span>
         <div
           className="rounded-full p-1 cursor-pointer hover:bg-primary"
-          onClick={() => handleAddCommand()}
+          onClick={() => handleAddCommand(false, undefined, type)}
         >
           <LuCirclePlus size={25} />
         </div>
@@ -90,12 +91,6 @@ export function CommandTable({
           </TableHeader>
           <TableBody>{handleLoadCommands()}</TableBody>
         </Table>
-        <CommandModal
-          isOpen={modalOpen}
-          onClose={handleCloseModal}
-          command={selectedCommand}
-          onSave={handleSaveCommand}
-        />
       </div>
     </div>
   )

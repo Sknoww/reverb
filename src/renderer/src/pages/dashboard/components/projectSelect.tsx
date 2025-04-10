@@ -7,7 +7,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { useToast } from '@/lib/hooks/use-toast'
 import { Project } from '@/types'
 import { Label } from '@radix-ui/react-label'
 import { useState } from 'react'
@@ -25,8 +24,6 @@ export function ProjectMenu({
 }) {
   const [modalOpen, setModalOpen] = useState(false)
   const [projectAlreadyExists, setProjectAlreadyExists] = useState(false)
-
-  const { toast } = useToast()
 
   function generateProjectDropdownItems(projects: Project[] | null) {
     if (projects) {

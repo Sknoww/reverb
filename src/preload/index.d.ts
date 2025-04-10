@@ -21,6 +21,7 @@ declare global {
       notifyRecentProjectIdChanged: (projectId: string) => void
       updateRecentProjectIds: (previousProjectId: string, newProjectId: string) => void
       notifyRecentProjectIdsChanged: (projectIds: string[]) => void
+      updateCommonCommands: (commands: AdbCommand[]) => void
     }
     dialogAPI: {
       selectFile: () => Promise<string | null>

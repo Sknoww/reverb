@@ -7,6 +7,7 @@ import { executeAdbCommand } from './managers/adbManager'
 import {
   loadConfig,
   saveConfig,
+  updateCommonCommands,
   updateRecentProjectId,
   updateRecentProjectIds
 } from './managers/configManager'
@@ -100,6 +101,7 @@ function setupIPC() {
   ipcMain.handle('config:recentProjectIds', (_, previousProjectId, newProjectId) =>
     updateRecentProjectIds(previousProjectId, newProjectId)
   )
+  ipcMain.handle('config:commonCommands', (_, commands) => updateCommonCommands(commands))
 
   // Project handlers
   ipcMain.handle('project:save', (_, project) => saveProject(project))

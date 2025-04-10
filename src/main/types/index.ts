@@ -1,6 +1,5 @@
 // src/renderer/src/types/index.ts
 export interface AdbCommand {
-  id: string
   name: string
   keyword: string
   type: string
@@ -21,4 +20,5 @@ export interface Config {
   saveLocation: string
   recentProjectId: string
   mostRecentProjectIds: string[]
+  commonCommands: AdbCommand[]
 }

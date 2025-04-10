@@ -1,18 +1,149 @@
+// CommandSidebar.tsx
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
-import { LuCirclePlus } from 'react-icons/lu'
+import { AdbCommand } from '@/types'
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import { BsList, BsThreeDotsVertical } from 'react-icons/bs'
+import { LuCirclePlay, LuCirclePlus } from 'react-icons/lu'
 
-export function CommandSidebar() {
+export function CommandSidebar({
+  commands,
+  setIsEditingCommand,
+  handleAddCommand,
+  handleEditCommand,
+  handleShowDeleteModal,
+  handleReorderCommands
+}: {
+  commands: AdbCommand[] | undefined
+  setIsEditingCommand: (isEditingCommand: boolean) => void
+  handleAddCommand: (isCommon: boolean, inputValue?: string, type?: string) => void
+  handleEditCommand: (command: AdbCommand | null, isCommon: boolean) => void
+  handleShowDeleteModal: (command: AdbCommand) => void
+  handleReorderCommands: (result: AdbCommand[]) => void
+}) {
+  const onDragEnd = (result: any) => {
+    // Dropped outside the list
+    if (!result.destination || !commands) {
+      return
+    }
+
+    // Reorder the commands array
+    const items = Array.from(commands)
+    const [reorderedItem] = items.splice(result.source.index, 1)
+    items.splice(result.destination.index, 0, reorderedItem)
+
+    // Call the handler to update the state in the parent component
+    handleReorderCommands(items)
+  }
+
+  const handleGenerateCommandItem = (command: AdbCommand, index: number) => {
+    return (
+      <Draggable key={command.keyword} draggableId={command.keyword} index={index}>
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            className={`flex flex-row items-center bg-primary gap-2 p-2 rounded-lg justify-between ${
+              snapshot.isDragging ? 'opacity-75' : ''
+            }`}
+          >
+            <div className="flex flex-row items-center gap-2">
+              <div {...provided.dragHandleProps}>
+                <BsList className="cursor-grab text-background hover:text-foreground" size={25} />
+              </div>
+              <span className="text-lg">{command.name}</span>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              {handleGenerateContextMenu(command)}
+              <Separator orientation="vertical" className="h-6" />
+              <LuCirclePlay
+                size={25}
+                onClick={() => {}}
+                className="cursor-pointer hover:text-green-500"
+              />
+            </div>
+          </div>
+        )}
+      </Draggable>
+    )
+  }
+
+  const handleGenerateCommandsList = () => {
+    if (commands && commands.length > 0) {
+      return (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="commands-list">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="flex flex-col gap-2"
+              >
+                {commands.map((command, index) => handleGenerateCommandItem(command, index))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      )
+    } else {
+      return <div className="text-muted-foreground text-center py-4">No commands added yet</div>
+    }
+  }
+
+  const handleGenerateContextMenu = (command: AdbCommand) => {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <span className="cursor-pointer">
+            <BsThreeDotsVertical size={20} className="hover:text-background" />
+          </span>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56 " align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => {
+                setIsEditingCommand(true)
+                handleEditCommand(command, true)
+              }}
+            >
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => handleShowDeleteModal(command)}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
+
   return (
     <>
       <div className="flex flex-col w-full h-12 justify-between">
-        <div className="flex flex-row justify-between items-center">
+        <div className="flex flex-row h-full justify-between items-center">
           <span className="text-xl">Common</span>
-          <div className="hover:bg-primary rounded-full p-1 cursor-pointer">
+          <div
+            className="hover:bg-primary rounded-full p-1 cursor-pointer"
+            onClick={() => handleAddCommand(true, undefined, 'barcode')}
+          >
             <LuCirclePlus size={25} />
           </div>
         </div>
         <Separator />
       </div>
+
+      <div className="flex flex-col mt-2">{handleGenerateCommandsList()}</div>
     </>
   )
 }

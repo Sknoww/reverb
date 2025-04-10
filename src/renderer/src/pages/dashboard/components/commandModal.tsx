@@ -8,24 +8,32 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { AdbCommand } from '@/types'
 import { useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid' // You may need to install this package
+import { MdKeyboardArrowDown } from 'react-icons/md'
 
 interface CommandModalProps {
   isOpen: boolean
   onClose: () => void
-  command?: AdbCommand | null // Optional - will be null/undefined for new commands
-  onSave: (command: AdbCommand) => void
-  title?: string // Allow custom title for different use cases
+  command?: AdbCommand | null
+  onSave: (command: AdbCommand, prevousCommand?: AdbCommand) => void
+  onSaveCommon: (command: AdbCommand, prevousCommand?: AdbCommand) => void
+  isCommon?: boolean
+  title?: string
+  error?: boolean
 }
 
 // Default empty command template
 const defaultCommand: AdbCommand = {
-  id: '',
   name: '',
   type: 'barcode',
   keyword: '',
@@ -38,12 +46,13 @@ export function CommandModal({
   onClose,
   command = null,
   onSave,
-  title = 'Command'
+  onSaveCommon,
+  isCommon,
+  title = 'Command',
+  error
 }: CommandModalProps) {
   // Set initial state based on whether we're editing or creating
-  const [editedCommand, setEditedCommand] = useState<AdbCommand>(
-    command || { ...defaultCommand, id: uuidv4() }
-  )
+  const [editedCommand, setEditedCommand] = useState<AdbCommand>(command || { ...defaultCommand })
 
   const isNewCommand = !command
 
@@ -52,7 +61,7 @@ export function CommandModal({
     if (command) {
       setEditedCommand(command)
     } else {
-      setEditedCommand({ ...defaultCommand, id: uuidv4() })
+      setEditedCommand({ ...defaultCommand })
     }
   }, [command, isOpen])
 
@@ -66,7 +75,15 @@ export function CommandModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(editedCommand)
+    if (isCommon) {
+      isNewCommand ? onSaveCommon(editedCommand) : onSaveCommon(editedCommand, command)
+    } else {
+      isNewCommand ? onSave(editedCommand) : onSave(editedCommand, command)
+    }
+  }
+
+  const captializeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1)
   }
 
   return (
@@ -110,12 +127,42 @@ export function CommandModal({
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="type" className="text-right">
+                Type
+              </Label>
+              <div className="col-span-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="w-full">
+                    <Button variant="secondary" className="text-xl w-full justify-start">
+                      {captializeFirstLetter(editedCommand.type)}
+                      <MdKeyboardArrowDown className="ml-auto" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-32">
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => setEditedCommand((prev) => ({ ...prev, type: 'barcode' }))}
+                    >
+                      Barcode
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => setEditedCommand((prev) => ({ ...prev, type: 'speech' }))}
+                    >
+                      Speech
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="command" className="text-right">
-                Command
+                Value
               </Label>
               <Input
-                id="command"
-                name="command"
+                id="value"
+                name="value"
                 value={editedCommand.value}
                 onChange={handleInputChange}
                 className="col-span-3"
@@ -144,6 +191,25 @@ export function CommandModal({
             <Button type="submit">{isNewCommand ? 'Create' : 'Save changes'}</Button>
           </DialogFooter>
         </form>
+        {error && (
+          <div className="flex items-center justify-center gap-2 mt-4 text-red-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <span>Keyword already exists</span>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

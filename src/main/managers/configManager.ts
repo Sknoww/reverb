@@ -1,14 +1,15 @@
 import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
-import { Config } from '../types'
+import { AdbCommand, Config } from '../types'
 import { setProjectsDirectory } from './projectManager'
 
 const configFilePath = path.join(app.getPath('userData'), 'config.json')
 const defaultConfig = {
   saveLocation: path.join(app.getPath('userData'), 'projects'),
   recentProjectId: '',
-  mostRecentProjectIds: []
+  mostRecentProjectIds: [],
+  commonCommands: []
 }
 
 export const loadConfig = (): Config => {
@@ -70,5 +71,14 @@ export const updateRecentProjectIds = (previousProjectId: string, newProjectId: 
     fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2))
   } catch (error) {
     console.error('Failed to update most recent project IDs:', error, newConfig)
+  }
+}
+
+export const updateCommonCommands = (commands: AdbCommand[]): void => {
+  const newConfig = { ...loadConfig(), commonCommands: commands }
+  try {
+    fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2))
+  } catch (error) {
+    console.error('Failed to update common commands:', error, newConfig)
   }
 }

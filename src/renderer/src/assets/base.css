@@ -202,24 +202,3 @@ select:focus,
     border-color 0.2s ease,
     box-shadow 0.2s ease !important;
 }
-
-tr:hover,
-.tr:hover,
-tbody tr:hover,
-table tr:hover,
-[role='row']:hover {
-  background-color: #2a2a2a !important; /* Slightly lighter than #222222 */
-  transition: background-color 0.2s ease;
-}
-
-/* For shadcn tables specifically */
-.data-[state='selected']:hover,
-[data-state='selected']:hover {
-  background-color: #2a2a2a !important;
-}
-
-/* Any other table-specific hover states */
-.table-row:hover,
-.hover\:bg-muted:hover {
-  background-color: #2a2a2a !important;
-}
