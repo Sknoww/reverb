@@ -11,54 +11,53 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { AdbCommand } from '@/types'
+import { Project } from '@/types'
 import { useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid' // You may need to install this package
 
-interface CommandModalProps {
+interface ProjectModalProps {
   isOpen: boolean
   onClose: () => void
-  command?: AdbCommand | null // Optional - will be null/undefined for new commands
-  onSave: (command: AdbCommand) => void
-  title?: string // Allow custom title for different use cases
+  project?: Project | null // Optional - will be null/undefined for new commands
+  onSave: (project: Project, isNewProject: boolean) => void
+  title?: string // Allow custom title for different use cases,
+  error?: boolean
 }
 
 // Default empty command template
-const defaultCommand: AdbCommand = {
+const defaultProject: Project = {
   id: '',
   name: '',
-  type: 'barcode',
-  keyword: '',
-  value: '',
-  description: ''
+  description: '',
+  createdAt: '',
+  updatedAt: '',
+  commands: []
 }
 
-export function CommandModal({
+export function ProjectModal({
   isOpen,
   onClose,
-  command = null,
+  project: project = null,
   onSave,
-  title = 'Command'
-}: CommandModalProps) {
+  title = 'Project',
+  error
+}: ProjectModalProps) {
   // Set initial state based on whether we're editing or creating
-  const [editedCommand, setEditedCommand] = useState<AdbCommand>(
-    command || { ...defaultCommand, id: uuidv4() }
-  )
+  const [editedProject, setEditedProject] = useState<Project>(project || { ...defaultProject })
 
-  const isNewCommand = !command
+  const isNewProject = !project
 
   // Reset form when a new command is selected or when switching between edit/create modes
   useEffect(() => {
-    if (command) {
-      setEditedCommand(command)
+    if (project) {
+      setEditedProject(project)
     } else {
-      setEditedCommand({ ...defaultCommand, id: uuidv4() })
+      setEditedProject({ ...defaultProject })
     }
-  }, [command, isOpen])
+  }, [project, isOpen])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setEditedCommand((prev) => ({
+    setEditedProject((prev) => ({
       ...prev,
       [name]: value
     }))
@@ -66,7 +65,7 @@ export function CommandModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(editedCommand)
+    onSave(editedProject, isNewProject)
   }
 
   return (
@@ -74,12 +73,11 @@ export function CommandModal({
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isNewCommand ? `Add New ${title}` : `Edit ${title}`}</DialogTitle>
+            <DialogTitle>{isNewProject ? `Add New ${title}` : `Edit ${title}`}</DialogTitle>
             <DialogDescription>
-              {isNewCommand ? `Create a new ADB command.` : `Make changes to your ADB command.`}
+              {isNewProject ? `Create a new project.` : `Make changes to your project.`}
             </DialogDescription>
           </DialogHeader>
-
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
@@ -88,49 +86,20 @@ export function CommandModal({
               <Input
                 id="name"
                 name="name"
-                value={editedCommand.name}
+                value={editedProject.name}
                 onChange={handleInputChange}
                 className="col-span-3"
                 required
               />
             </div>
-
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="keyword" className="text-right">
-                Keyword
-              </Label>
-              <Input
-                id="keyword"
-                name="keyword"
-                value={editedCommand.keyword}
-                onChange={handleInputChange}
-                className="col-span-3"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="command" className="text-right">
-                Command
-              </Label>
-              <Input
-                id="command"
-                name="command"
-                value={editedCommand.value}
-                onChange={handleInputChange}
-                className="col-span-3"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
+              <Label htmlFor="name" className="text-right">
                 Description
               </Label>
               <Textarea
                 id="description"
                 name="description"
-                value={editedCommand.description}
+                value={editedProject.description}
                 onChange={handleInputChange}
                 className="col-span-3"
               />
@@ -141,9 +110,28 @@ export function CommandModal({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">{isNewCommand ? 'Create' : 'Save changes'}</Button>
+            <Button type="submit">{isNewProject ? 'Create' : 'Save changes'}</Button>
           </DialogFooter>
         </form>
+        {error && (
+          <div className="flex items-center justify-center gap-2 mt-4 text-red-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <span>Project already exists</span>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

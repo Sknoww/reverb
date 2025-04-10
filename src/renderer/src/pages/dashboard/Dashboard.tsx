@@ -1,8 +1,7 @@
 import { MainContainer } from '@/components/mainContainer'
 import { Separator } from '@/components/ui/separator'
-import { AdbCommand, Config, Project } from '@/types'
+import { Config, Project } from '@/types'
 import { useEffect, useState } from 'react'
-import { CommandModal } from './components/commandModal'
 import { CommandSidebar } from './components/commandSidebar'
 import { CommandTable } from './components/commandTable'
 import { ContextMenu } from './components/contextMenu'
@@ -10,8 +9,6 @@ import { InputCard } from './components/inputCard'
 import { ProjectMenu } from './components/projectSelect'
 
 export function Dashboard() {
-  const [selectedCommand, setSelectedCommand] = useState<AdbCommand | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
   const [config, setConfig] = useState<Config>({
     saveLocation: '',
     recentProjectId: '',
@@ -26,6 +23,7 @@ export function Dashboard() {
       setIsLoading(true)
       try {
         const loadedConfig = await window.configAPI.getConfig()
+        console.log(loadedConfig)
         setConfig(loadedConfig)
 
         if (loadedConfig.recentProjectId && loadedConfig.recentProjectId !== '') {
@@ -34,11 +32,13 @@ export function Dashboard() {
         }
 
         const loadedProjects = await window.projectAPI.getAllProjects()
+        console.log(loadedProjects)
         setProjects(loadedProjects)
       } catch (error) {
         console.error('Error loading data:', error)
       } finally {
         setIsLoading(false)
+        console.log(projects)
       }
     }
 
@@ -71,20 +71,6 @@ export function Dashboard() {
 
   if (isLoading) {
     return <div>Loading settings...</div>
-  }
-
-  const handleCloseModal = () => {
-    setModalOpen(false)
-    setSelectedCommand(null)
-  }
-
-  const handleSaveCommand = (updatedCommand: AdbCommand) => {
-    // Here you would update your commands in your state or database
-    // This is just an example - you'll need to implement the actual update logic
-    console.log('Saving updated command:', updatedCommand)
-    setModalOpen(false)
-    // You would typically call a function passed down from the parent component
-    // to update the state, something like: onUpdateCommand(updatedCommand)
   }
 
   return (
@@ -124,12 +110,6 @@ export function Dashboard() {
               <CommandSidebar />
             </div>
           </div>
-          <CommandModal
-            isOpen={modalOpen}
-            onClose={handleCloseModal}
-            command={selectedCommand}
-            onSave={handleSaveCommand}
-          />
         </MainContainer>
       </div>
     </>

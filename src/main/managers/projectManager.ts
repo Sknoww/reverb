@@ -29,7 +29,7 @@ if (!fs.existsSync(projectsDir)) {
 }
 
 export const saveProject = (project: Project): void => {
-  const filePath = path.join(projectsDir, `${project.id}.json`)
+  const filePath = path.join(projectsDir, `${project.id}.project.json`)
   fs.writeFileSync(filePath, JSON.stringify(project, null, 2))
 }
 
@@ -38,6 +38,7 @@ export const getProject = (projectId: string): Project | null => {
   console.log('Projects dir:', projectsDir)
   const filePath = path.join(projectsDir, projectId)
   if (!fs.existsSync(filePath)) return null
+  console.log('Project file path:', filePath)
 
   const projectData = fs.readFileSync(filePath, 'utf-8')
   return JSON.parse(projectData) as Project
@@ -47,11 +48,20 @@ export const getAllProjects = (): Project[] => {
   if (!fs.existsSync(projectsDir)) return []
 
   const config = loadConfig()
-  const projectFiles = fs
-    .readdirSync(projectsDir)
-    .filter((file) => config.mostRecentProjectIds.includes(file) && file.includes('.project'))
+  var projectFiles = []
+  config.mostRecentProjectIds.forEach((projectId) => {
+    const filePath = path.join(projectsDir, projectId)
+    if (fs.existsSync(filePath)) {
+      projectFiles.push(filePath)
+    }
+  })
+  const filePath = path.join(projectsDir, config.recentProjectId)
+  if (fs.existsSync(filePath)) {
+    projectFiles.push(filePath)
+  }
+
   return projectFiles.map((file) => {
-    const projectData = fs.readFileSync(path.join(projectsDir, file), 'utf-8')
+    const projectData = fs.readFileSync(path.join(file), 'utf-8')
     return JSON.parse(projectData) as Project
   })
 }

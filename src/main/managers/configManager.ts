@@ -62,7 +62,7 @@ export const updateRecentProjectIds = (previousProjectId: string, newProjectId: 
   // Add new project ID to most recent project IDs
   mostRecentProjectIds.push(previousProjectId)
   // Limit it to the last 5 items
-  mostRecentProjectIds = mostRecentProjectIds.reverse().slice(0, 5)
+  mostRecentProjectIds = mostRecentProjectIds.slice(0, 5)
 
   const newConfig = { ...config, mostRecentProjectIds }
   console.log('Updating most recent project IDs:', mostRecentProjectIds)
