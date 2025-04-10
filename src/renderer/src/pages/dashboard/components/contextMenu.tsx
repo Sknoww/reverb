@@ -1,3 +1,4 @@
+// ContextMenu.tsx
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,22 +12,25 @@ import { BsThreeDotsVertical } from 'react-icons/bs'
 
 export function ContextMenu() {
   const { safeNavigate } = useNavigationLock()
+
+  const handleNavigateToSettings = () => {
+    safeNavigate('/settings')
+  }
+
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost">
-            <BsThreeDotsVertical />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 " align="end">
-          <DropdownMenuGroup>
-            <DropdownMenuItem className="cursor-pointer" onClick={() => safeNavigate('/settings')}>
-              Settings
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" aria-label="Menu">
+          <BsThreeDotsVertical />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end">
+        <DropdownMenuGroup>
+          <DropdownMenuItem className="cursor-pointer" onClick={handleNavigateToSettings}>
+            Settings
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

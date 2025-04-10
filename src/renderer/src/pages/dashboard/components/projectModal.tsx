@@ -1,4 +1,4 @@
-// CommandModal.tsx
+// ProjectModal.tsx
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -14,16 +14,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Project } from '@/types'
 import { useEffect, useState } from 'react'
 
-interface ProjectModalProps {
-  isOpen: boolean
-  onClose: () => void
-  project?: Project | null
-  onSave: (project: Project, isNewProject: boolean) => void
-  title?: string
-  error?: boolean
-}
-
-// Default empty command template
+// Default empty project template
 const defaultProject: Project = {
   id: '',
   name: '',
@@ -33,20 +24,28 @@ const defaultProject: Project = {
   commands: []
 }
 
+interface ProjectModalProps {
+  isOpen: boolean
+  onClose: () => void
+  project?: Project | null
+  onSave: (project: Project, isNewProject: boolean) => void
+  title?: string
+  error?: boolean
+}
+
 export function ProjectModal({
   isOpen,
   onClose,
-  project: project = null,
+  project = null,
   onSave,
   title = 'Project',
   error
 }: ProjectModalProps) {
-  // Set initial state based on whether we're editing or creating
+  // State
   const [editedProject, setEditedProject] = useState<Project>(project || { ...defaultProject })
-
   const isNewProject = !project
 
-  // Reset form when a new command is selected or when switching between edit/create modes
+  // Reset form when a new project is selected or when switching between edit/create modes
   useEffect(() => {
     if (project) {
       setEditedProject(project)
@@ -55,6 +54,7 @@ export function ProjectModal({
     }
   }, [project, isOpen])
 
+  // Handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setEditedProject((prev) => ({
@@ -78,7 +78,9 @@ export function ProjectModal({
               {isNewProject ? `Create a new project.` : `Make changes to your project.`}
             </DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4 py-4">
+            {/* Name Field */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
                 Name
@@ -92,8 +94,10 @@ export function ProjectModal({
                 required
               />
             </div>
+
+            {/* Description Field */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
+              <Label htmlFor="description" className="text-right">
                 Description
               </Label>
               <Textarea
@@ -113,6 +117,8 @@ export function ProjectModal({
             <Button type="submit">{isNewProject ? 'Create' : 'Save changes'}</Button>
           </DialogFooter>
         </form>
+
+        {/* Error Message */}
         {error && (
           <div className="flex items-center justify-center gap-2 mt-4 text-red-500">
             <svg

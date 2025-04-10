@@ -1,3 +1,4 @@
+// DeleteModal.tsx
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -8,7 +9,6 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { AdbCommand } from '@/types'
-import {} from '@radix-ui/react-dialog'
 
 interface DeleteModalProps {
   isOpen: boolean
@@ -27,6 +27,10 @@ export function DeleteModal({
   title = 'Delete',
   message = 'Are you sure?'
 }: DeleteModalProps) {
+  const handleConfirm = () => {
+    onSave(command)
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
@@ -38,7 +42,7 @@ export function DeleteModal({
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="destructive" onClick={() => onSave(command)}>
+          <Button type="button" variant="destructive" onClick={handleConfirm}>
             Confirm
           </Button>
         </DialogFooter>

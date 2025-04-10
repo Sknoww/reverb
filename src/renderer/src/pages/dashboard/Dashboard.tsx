@@ -1,3 +1,4 @@
+// Dashboard.tsx
 import { MainContainer } from '@/components/mainContainer'
 import { Separator } from '@/components/ui/separator'
 import { AdbCommand, Config, Project } from '@/types'
@@ -10,27 +11,45 @@ import { DeleteModal } from './components/deleteModal'
 import { InputCard } from './components/inputCard'
 import { ProjectMenu } from './components/projectSelect'
 
+/**
+ * Dashboard Component
+ * Main container for the ADB Command Manager application
+ */
 export function Dashboard() {
-  // State definitions
+  // =========================================================================
+  // State Management
+  // =========================================================================
   const [config, setConfig] = useState<Config>({
     saveLocation: '',
     recentProjectId: '',
     mostRecentProjectIds: [],
     commonCommands: []
   })
+
+  // Project state
+  const [project, setProject] = useState<Project | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+
+  // Command management state
   const [selectedCommand, setSelectedCommand] = useState<AdbCommand | null>(null)
+  const [isEditingCommand, setIsEditingCommand] = useState(false)
+
+  // Modal state
   const [commandModalOpen, setCommandModalOpen] = useState(false)
   const [commandModalCommonOpen, setCommandModalCommonOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [commandAlreadyExists, setCommandAlreadyExists] = useState(false)
-  const [project, setProject] = useState<Project | null>(null)
-  const [projects, setProjects] = useState<Project[]>([])
-  const [isEditingCommand, setIsEditingCommand] = useState(false)
+
+  // Loading state
   const [isLoading, setIsLoading] = useState(false)
+
+  // =========================================================================
+  // Data Loading Effects
+  // =========================================================================
 
   // Initial data loading
   useEffect(() => {
-    async function initialize() {
+    const loadInitialData = async () => {
       setIsLoading(true)
       try {
         // Load configuration
@@ -38,7 +57,7 @@ export function Dashboard() {
         setConfig(loadedConfig)
 
         // Load recent project if available
-        if (loadedConfig.recentProjectId && loadedConfig.recentProjectId !== '') {
+        if (loadedConfig.recentProjectId) {
           const loadedProject = await window.projectAPI.getProject(loadedConfig.recentProjectId)
           setProject(loadedProject)
         }
@@ -53,13 +72,13 @@ export function Dashboard() {
       }
     }
 
-    initialize()
+    loadInitialData()
   }, [])
 
-  // Handle project changes when config.recentProjectId changes
+  // Handle project changes when recentProjectId changes
   useEffect(() => {
-    async function loadProject() {
-      if (config.recentProjectId && config.recentProjectId !== '' && projects.length > 0) {
+    const loadSelectedProject = async () => {
+      if (config.recentProjectId && projects.length > 0) {
         setIsLoading(true)
         try {
           const loadedProject = projects.find((project) => project.id === config.recentProjectId)
@@ -74,18 +93,22 @@ export function Dashboard() {
       }
     }
 
-    // Only run this effect if config has been initialized
-    if (config.saveLocation !== '') {
-      loadProject()
+    // Only run if config has been initialized
+    if (config.saveLocation) {
+      loadSelectedProject()
     }
   }, [config.recentProjectId, projects])
 
-  // Loading state
+  // Show loading state if needed
   if (isLoading) {
     return <div>Loading settings...</div>
   }
 
-  // Command handlers
+  // =========================================================================
+  // Command Management Handlers
+  // =========================================================================
+
+  // Add new command
   const handleAddCommand = (isCommon: boolean, inputValue?: string, type?: string) => {
     setSelectedCommand({
       name: '',
@@ -102,6 +125,7 @@ export function Dashboard() {
     }
   }
 
+  // Edit existing command
   const handleEditCommand = (command: AdbCommand | null, isCommon: boolean) => {
     setSelectedCommand(command)
 
@@ -112,215 +136,262 @@ export function Dashboard() {
     }
   }
 
+  // Close command modal
   const handleCloseModal = () => {
     setCommandModalOpen(false)
     setCommandModalCommonOpen(false)
     setSelectedCommand(null)
   }
 
-  // Validation functions
+  // =========================================================================
+  // Validation Helpers
+  // =========================================================================
+
+  // Check if keyword exists in project commands
   const verifyNoExistingKeyword = (command: AdbCommand) => {
-    const existingCommand = project?.commands.find((c) => c.keyword === command.keyword)
-    return !!existingCommand
+    return !!project?.commands.find((c) => c.keyword === command.keyword)
   }
 
+  // Check if keyword exists in common commands
   const verifyNoExistingCommonKeyword = (command: AdbCommand) => {
-    const existingCommand = config.commonCommands.find((c) => c.keyword === command.keyword)
-    return !!existingCommand
+    return !!config.commonCommands.find((c) => c.keyword === command.keyword)
   }
 
-  // Save handlers
-  const handleSaveCommand = (updatedCommand: AdbCommand, prevousCommand?: AdbCommand) => {
+  // =========================================================================
+  // Save Handlers
+  // =========================================================================
+
+  // Save project command
+  const handleSaveCommand = (updatedCommand: AdbCommand, previousCommand?: AdbCommand) => {
     if (
       verifyNoExistingKeyword(updatedCommand) &&
-      prevousCommand &&
-      prevousCommand.keyword !== updatedCommand.keyword
+      previousCommand &&
+      previousCommand.keyword !== updatedCommand.keyword
     ) {
       setCommandAlreadyExists(true)
-    } else {
-      if (project) {
-        if (isEditingCommand && prevousCommand) {
-          // Update existing command
-          const updatedCommands = project.commands.map((command) => {
-            if (command.keyword === prevousCommand.keyword) {
-              return updatedCommand
-            } else {
-              return command
-            }
-          })
-          const updatedProject = { ...project, commands: updatedCommands }
-          setProject(updatedProject)
-          window.projectAPI.saveProject(updatedProject)
-          setIsEditingCommand(false)
-        } else {
-          // Add new command
-          project.commands.push(updatedCommand)
-          window.projectAPI.saveProject(project)
+    } else if (project) {
+      if (isEditingCommand && previousCommand) {
+        // Update existing command
+        const updatedCommands = project.commands.map((command) => {
+          if (command.keyword === previousCommand.keyword) {
+            return updatedCommand
+          }
+          return command
+        })
+
+        const updatedProject = { ...project, commands: updatedCommands }
+        setProject(updatedProject)
+        window.projectAPI.saveProject(updatedProject)
+        setIsEditingCommand(false)
+      } else {
+        // Add new command
+        const updatedProject = {
+          ...project,
+          commands: [...project.commands, updatedCommand]
         }
-        setCommandAlreadyExists(false)
-        setCommandModalOpen(false)
+        setProject(updatedProject)
+        window.projectAPI.saveProject(updatedProject)
       }
+
+      setCommandAlreadyExists(false)
+      setCommandModalOpen(false)
     }
   }
 
-  const handleSaveCommonCommand = (updatedCommand: AdbCommand, prevousCommand?: AdbCommand) => {
+  // Save common command
+  const handleSaveCommonCommand = (updatedCommand: AdbCommand, previousCommand?: AdbCommand) => {
     if (
       verifyNoExistingCommonKeyword(updatedCommand) &&
-      prevousCommand &&
-      prevousCommand.keyword !== updatedCommand.keyword
+      previousCommand &&
+      previousCommand.keyword !== updatedCommand.keyword
     ) {
       setCommandAlreadyExists(true)
     } else {
-      if (config) {
-        let updatedCommonCommands
-        if (isEditingCommand && prevousCommand) {
-          // Update existing common command
-          updatedCommonCommands = config.commonCommands.map((command) => {
-            if (command.keyword === prevousCommand.keyword) {
-              return updatedCommand
-            } else {
-              return command
-            }
-          })
-        } else {
-          // Add new common command
-          updatedCommonCommands = config.commonCommands.concat(updatedCommand)
-        }
-        setConfig({ ...config, commonCommands: updatedCommonCommands })
-        window.configAPI.updateCommonCommands(updatedCommonCommands)
-        setCommandAlreadyExists(false)
-        setCommandModalCommonOpen(false)
+      let updatedCommonCommands
+
+      if (isEditingCommand && previousCommand) {
+        // Update existing common command
+        updatedCommonCommands = config.commonCommands.map((command) => {
+          if (command.keyword === previousCommand.keyword) {
+            return updatedCommand
+          }
+          return command
+        })
+      } else {
+        // Add new common command
+        updatedCommonCommands = [...config.commonCommands, updatedCommand]
       }
+
+      const updatedConfig = { ...config, commonCommands: updatedCommonCommands }
+      setConfig(updatedConfig)
+      window.configAPI.updateCommonCommands(updatedCommonCommands)
+      setCommandAlreadyExists(false)
+      setCommandModalCommonOpen(false)
     }
   }
 
-  // Delete handlers
+  // =========================================================================
+  // Delete Handlers
+  // =========================================================================
+
+  // Show delete confirmation modal
   const handleShowDeleteModal = (command: AdbCommand) => {
     setSelectedCommand(command)
     setDeleteModalOpen(true)
   }
 
+  // Delete command
   const handleDeleteCommand = (command: AdbCommand) => {
     if (project) {
-      project.commands = project.commands.filter((c) => c.keyword !== command.keyword)
-      window.projectAPI.saveProject(project)
+      const filteredCommands = project.commands.filter((c) => c.keyword !== command.keyword)
+      const updatedProject = { ...project, commands: filteredCommands }
+      setProject(updatedProject)
+      window.projectAPI.saveProject(updatedProject)
       setDeleteModalOpen(false)
     }
   }
 
+  // Delete common command
+  const handleDeleteCommonCommand = (command: AdbCommand) => {
+    if (config) {
+      const filteredCommands = config.commonCommands.filter((c) => c.keyword !== command.keyword)
+      const updatedConfig = { ...config, commonCommands: filteredCommands }
+      setConfig(updatedConfig)
+      window.configAPI.updateCommonCommands(updatedConfig.commonCommands)
+      setDeleteModalOpen(false)
+    }
+  }
+
+  // Close delete modal
   const handleCloseDeleteModal = () => {
     setDeleteModalOpen(false)
     setSelectedCommand(null)
   }
 
-  // Reordering handler
+  // =========================================================================
+  // Reordering Handler
+  // =========================================================================
+
+  // Reorder common commands
   const handleReorderCommonCommands = (reorderedCommands: AdbCommand[]) => {
     const updatedConfig = { ...config, commonCommands: reorderedCommands }
     setConfig(updatedConfig)
     window.configAPI.updateCommonCommands(reorderedCommands)
   }
 
+  // =========================================================================
   // Render UI
+  // =========================================================================
   return (
-    <>
-      <div className="w-screen h-screen">
-        <MainContainer>
-          <div className="flex flex-row w-full h-full">
-            {/* Main content area */}
-            <div className="flex-0 flex-col w-full h-full px-5 gap-5">
-              {/* Header */}
-              <div className="flex items-start justify-between w-full">
-                <ProjectMenu
-                  currentProject={project}
-                  projects={projects}
-                  currentFile={config.recentProjectId}
-                />
-                <ContextMenu />
-              </div>
-
-              <Separator />
-
-              {/* Input card */}
-              <div className="py-5">
-                <InputCard handleAddCommand={handleAddCommand} />
-              </div>
-
-              <Separator />
-
-              {/* Command tables */}
-              <div className="flex flex-col gap-5">
-                <div className="pt-5">
-                  <CommandTable
-                    commands={project?.commands}
-                    header="Barcodes"
-                    type="barcode"
-                    setIsEditingCommand={setIsEditingCommand}
-                    handleAddCommand={handleAddCommand}
-                    handleEditCommand={handleEditCommand}
-                    handleShowDeleteModal={handleShowDeleteModal}
-                  />
-                </div>
-                <div>
-                  <CommandTable
-                    commands={project?.commands}
-                    header="Speech"
-                    type="speech"
-                    setIsEditingCommand={setIsEditingCommand}
-                    handleAddCommand={handleAddCommand}
-                    handleEditCommand={handleEditCommand}
-                    handleShowDeleteModal={handleShowDeleteModal}
-                  />
-                </div>
-              </div>
+    <div className="w-screen h-screen">
+      <MainContainer>
+        <div className="flex flex-row w-full h-full">
+          {/* Main content area */}
+          <div className="flex-0 flex-col w-full h-full px-5 gap-5">
+            {/* Header with project selection */}
+            <div className="flex items-start justify-between w-full">
+              <ProjectMenu
+                currentProject={project}
+                projects={projects}
+                currentFile={config.recentProjectId}
+              />
+              <ContextMenu />
             </div>
 
-            <Separator orientation="vertical" />
+            <Separator />
 
-            {/* Sidebar */}
-            <div className="w-1/4 items-center gap-2 px-5">
-              <CommandSidebar
-                setIsEditingCommand={setIsEditingCommand}
-                commands={config.commonCommands}
-                handleAddCommand={handleAddCommand}
-                handleEditCommand={handleEditCommand}
-                handleShowDeleteModal={handleShowDeleteModal}
-                handleReorderCommands={handleReorderCommonCommands}
-              />
+            {/* Quick input section */}
+            <div className="py-5">
+              <InputCard handleAddCommand={handleAddCommand} />
+            </div>
+
+            <Separator />
+
+            {/* Command tables */}
+            <div className="flex flex-col gap-5">
+              {/* Barcode commands */}
+              <div className="pt-5">
+                <CommandTable
+                  commands={project?.commands}
+                  header="Barcodes"
+                  type="barcode"
+                  setIsEditingCommand={setIsEditingCommand}
+                  handleAddCommand={handleAddCommand}
+                  handleEditCommand={handleEditCommand}
+                  handleShowDeleteModal={handleShowDeleteModal}
+                />
+              </div>
+
+              {/* Speech commands */}
+              <div>
+                <CommandTable
+                  commands={project?.commands}
+                  header="Speech"
+                  type="speech"
+                  setIsEditingCommand={setIsEditingCommand}
+                  handleAddCommand={handleAddCommand}
+                  handleEditCommand={handleEditCommand}
+                  handleShowDeleteModal={handleShowDeleteModal}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Modals */}
-          <CommandModal
-            isOpen={commandModalOpen}
-            onClose={handleCloseModal}
-            command={selectedCommand}
-            onSave={handleSaveCommand}
-            onSaveCommon={handleSaveCommonCommand}
-            isCommon={false}
-            error={commandAlreadyExists}
-          />
+          <Separator orientation="vertical" />
 
-          <CommandModal
-            isOpen={commandModalCommonOpen}
-            onClose={handleCloseModal}
-            command={selectedCommand}
-            onSave={handleSaveCommand}
-            onSaveCommon={handleSaveCommonCommand}
-            isCommon={true}
-            error={commandAlreadyExists}
-          />
+          {/* Sidebar with common commands */}
+          <div className="w-1/4 items-center gap-2 px-5">
+            <CommandSidebar
+              setIsEditingCommand={setIsEditingCommand}
+              commands={config.commonCommands}
+              handleAddCommand={handleAddCommand}
+              handleEditCommand={handleEditCommand}
+              handleShowDeleteModal={handleShowDeleteModal}
+              handleReorderCommands={handleReorderCommonCommands}
+            />
+          </div>
+        </div>
 
-          <DeleteModal
-            isOpen={deleteModalOpen}
-            onClose={handleCloseDeleteModal}
-            onSave={handleDeleteCommand}
-            command={selectedCommand!}
-            title="Delete Command"
-            message="Are you sure you want to delete this command?"
-          />
-        </MainContainer>
-      </div>
-    </>
+        {/* Modals */}
+        <CommandModal
+          isOpen={commandModalOpen}
+          onClose={handleCloseModal}
+          command={selectedCommand}
+          onSave={handleSaveCommand}
+          onSaveCommon={handleSaveCommonCommand}
+          isCommon={false}
+          error={commandAlreadyExists}
+        />
+
+        <CommandModal
+          isOpen={commandModalCommonOpen}
+          onClose={handleCloseModal}
+          command={selectedCommand}
+          onSave={handleSaveCommand}
+          onSaveCommon={handleSaveCommonCommand}
+          isCommon={true}
+          error={commandAlreadyExists}
+        />
+
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onSave={handleDeleteCommand}
+          command={selectedCommand!}
+          title="Delete Command"
+          message="Are you sure you want to delete this command?"
+        />
+
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onSave={handleDeleteCommonCommand}
+          command={selectedCommand!}
+          title="Delete Common Command"
+          message="Are you sure you want to delete this common command?"
+        />
+      </MainContainer>
+    </div>
   )
 }
 

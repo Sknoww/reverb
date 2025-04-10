@@ -1,3 +1,4 @@
+// ProjectSelect.tsx
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -13,64 +14,28 @@ import { useState } from 'react'
 import { MdKeyboardArrowDown } from 'react-icons/md'
 import { ProjectModal } from './projectModal'
 
-export function ProjectMenu({
-  projects,
-  currentProject,
-  currentFile
-}: {
+interface ProjectMenuProps {
   projects: Project[] | null
   currentProject: Project | null
   currentFile: string | ''
-}) {
+}
+
+export function ProjectMenu({ projects, currentProject, currentFile }: ProjectMenuProps) {
+  // State
   const [modalOpen, setModalOpen] = useState(false)
   const [projectAlreadyExists, setProjectAlreadyExists] = useState(false)
 
-  function generateProjectDropdownItems(projects: Project[] | null) {
-    if (projects) {
-      var filteredProjects = projects.filter((project) => project.id !== currentProject?.id)
-      filteredProjects = filteredProjects.reverse()
-      return filteredProjects.map((project) => (
-        <DropdownMenuItem
-          className="hover:bg-primary cursor-pointer"
-          key={project.id}
-          onClick={() => handleSelectProject(`${project.id}.project.json`)}
-        >
-          {project.name}
-        </DropdownMenuItem>
-      ))
-    } else {
-      return null
-    }
-  }
+  // Handlers
+  const handleSelectProject = (projectId: string) => {
+    if (projectId) {
+      window.configAPI.updateRecentProjectId(projectId)
 
-  function determineCurrentProjectName() {
-    if (currentProject) {
-      return (
-        <>
-          {currentProject.name}
-          <MdKeyboardArrowDown />
-        </>
-      )
-    } else {
-      return (
-        <>
-          {'No project selected'}
-          <MdKeyboardArrowDown />
-        </>
-      )
-    }
-  }
+      if (currentProject) {
+        window.configAPI.updateRecentProjectIds(currentFile, projectId)
+      }
 
-  function handleShowRecentProjects() {
-    if (projects && projects.length > 0) {
-      return (
-        <>
-          <DropdownMenuGroup>{generateProjectDropdownItems(projects)}</DropdownMenuGroup>
-          <DropdownMenuSeparator />
-        </>
-      )
-    } else {
-      return null
+      window.location.reload()
+      window.configAPI.notifyRecentProjectIdChanged(projectId)
     }
   }
 
@@ -78,19 +43,6 @@ export function ProjectMenu({
     const selectedFile = await window.dialogAPI.selectFile()
     if (selectedFile) {
       handleSelectProject(selectedFile)
-    }
-  }
-
-  const handleSelectProject = (projectId: string) => {
-    console.log('Selecting project:', projectId)
-    if (projectId) {
-      window.configAPI.updateRecentProjectId(projectId)
-      if (currentProject) {
-        window.configAPI.updateRecentProjectIds(currentFile, projectId)
-      }
-
-      window.location.reload()
-      window.configAPI.notifyRecentProjectIdChanged(projectId)
     }
   }
 
@@ -103,38 +55,80 @@ export function ProjectMenu({
   }
 
   const handleSaveProject = async (newProject: Project, isNewProject: boolean) => {
-    // Here you would update your commands in your state or database
-    // This is just an example - you'll need to implement the actual update logic
-    console.log('Saving updated project:', newProject)
     if (isNewProject) {
+      // Create ID from project name
       const id = newProject.name.replace(/\s/g, '').toLowerCase()
       newProject.id = id
+
+      // Check if project already exists
       const projectExists = await checkForExistingProject(newProject.id)
       if (projectExists) {
         setProjectAlreadyExists(true)
         return
       }
 
+      // Set timestamps for new project
       setProjectAlreadyExists(false)
       newProject.createdAt = new Date().toISOString()
       newProject.updatedAt = new Date().toISOString()
     }
 
+    // Save project and switch to it
     window.projectAPI.saveProject(newProject)
-    console.log('Project saved:', newProject)
     handleSelectProject(`${newProject.id}.project.json`)
     setModalOpen(false)
-    // You would typically call a function passed down from the parent component
-    // to update the state, something like: onUpdateCommand(updatedCommand)
   }
 
   const checkForExistingProject = async (projectId: string) => {
     const existingProject = await window.projectAPI.getProject(`${projectId}.project.json`)
-    if (existingProject !== null) {
-      console.log('Existing project found:', existingProject)
-      return true
+    return existingProject !== null
+  }
+
+  // Helper render functions
+  const renderProjectName = () => {
+    if (currentProject) {
+      return (
+        <>
+          {currentProject.name}
+          <MdKeyboardArrowDown />
+        </>
+      )
     }
-    return false
+
+    return (
+      <>
+        {'No project selected'}
+        <MdKeyboardArrowDown />
+      </>
+    )
+  }
+
+  const renderRecentProjects = () => {
+    if (!projects || projects.length === 0) {
+      return null
+    }
+
+    // Filter out current project and reverse to show most recent first
+    const filteredProjects = projects
+      .filter((project) => project.id !== currentProject?.id)
+      .reverse()
+
+    return (
+      <>
+        <DropdownMenuGroup>
+          {filteredProjects.map((project) => (
+            <DropdownMenuItem
+              key={project.id}
+              className="hover:bg-primary cursor-pointer"
+              onClick={() => handleSelectProject(`${project.id}.project.json`)}
+            >
+              {project.name}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+      </>
+    )
   }
 
   return (
@@ -143,28 +137,36 @@ export function ProjectMenu({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="bg-background text-xl">
-              {determineCurrentProjectName()}
+              {renderProjectName()}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 " align="start">
+          <DropdownMenuContent className="w-56" align="start">
+            {/* Create New Project Option */}
             <DropdownMenuGroup>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => handleAddProject()}>
+              <DropdownMenuItem className="cursor-pointer" onClick={handleAddProject}>
                 New Project
               </DropdownMenuItem>
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
-            <Label htmlFor="project-select" className="text-xs">
+
+            {/* Recent Projects */}
+            <Label htmlFor="project-select" className="text-xs px-2">
               Recent...
             </Label>
-            {handleShowRecentProjects()}
-            <DropdownMenuGroup about="Recent...">
-              <DropdownMenuItem className="cursor-pointer" onClick={() => handleBrowseFiles()}>
+            {renderRecentProjects()}
+
+            {/* Browse Files */}
+            <DropdownMenuGroup>
+              <DropdownMenuItem className="cursor-pointer" onClick={handleBrowseFiles}>
                 Browse...
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Project Creation/Edit Modal */}
       <ProjectModal
         isOpen={modalOpen}
         onClose={handleCloseModal}

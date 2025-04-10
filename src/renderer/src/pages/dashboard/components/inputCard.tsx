@@ -1,18 +1,20 @@
+// InputCard.tsx
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 
-export function InputCard({
-  handleAddCommand
-}: {
+interface InputCardProps {
   handleAddCommand: (isCommon: boolean, inputValue: string) => void
-}) {
+}
+
+export function InputCard({ handleAddCommand }: InputCardProps) {
+  // State
   const [inputValue, setInputValue] = useState('')
 
+  // Handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setInputValue(value)
+    setInputValue(e.target.value)
   }
 
   const handleClear = () => {
@@ -40,6 +42,7 @@ export function InputCard({
       </CardHeader>
       <CardContent className="w-full p-2">
         <div className="flex flex-col w-full gap-5">
+          {/* Input and Clear button */}
           <div className="flex flex-row gap-2">
             <Input
               id="value"
@@ -48,11 +51,13 @@ export function InputCard({
               className="w-2/3 placeholder:text-opacity-5"
               placeholder="Value/Keyword"
               onChange={handleInputChange}
-            ></Input>
+            />
             <Button className="w-1/3" onClick={handleClear}>
               Clear
             </Button>
           </div>
+
+          {/* Action buttons */}
           <div className="flex flex-row w-full gap-2">
             <Button className="w-full" onClick={handleBarcode}>
               Barcode
