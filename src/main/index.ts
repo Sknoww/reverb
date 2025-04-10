@@ -1,17 +1,19 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell } from 'electron'
-import fs from 'fs'
-import path, { join } from 'path'
+import { app, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
+import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 
-nativeTheme.themeSource = 'dark'
+import { executeAdbCommand } from './managers/adbManager'
+import {
+  loadConfig,
+  saveConfig,
+  updateRecentProjectId,
+  updateRecentProjectIds
+} from './managers/configManager'
+import { selectFile, selectFolder } from './managers/dialogManager'
+import { deleteProject, getAllProjects, getProject, saveProject } from './managers/projectManager'
 
-const configFilePath = path.join(app.getPath('userData'), 'config.json')
-const defaultConfig = {
-  saveLocation: path.join(app.getPath('userData'), 'projects'),
-  recentProjectId: '',
-  mostRecentProjectIds: []
-}
+nativeTheme.themeSource = 'dark'
 
 function createWindow(): void {
   // Create the browser window.
@@ -85,106 +87,34 @@ app.on('window-all-closed', () => {
   }
 })
 
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
-import { executeAdbCommand } from './adbUtils'
-import {
-  deleteProject,
-  getAllProjects,
-  getProject,
-  saveProject,
-  setProjectsDirectory
-} from './dataManager'
-import { Config } from './types'
-
-// Add IPC handler for ADB commands
-ipcMain.handle('adb:execute', async (_, command) => {
-  try {
-    return await executeAdbCommand(command)
-  } catch (error) {
-    return { error: (error as Error).message }
-  }
-})
-
-//CONFIG
-// Load config
-const loadConfig = () => {
-  try {
-    if (fs.existsSync(configFilePath)) {
-      return JSON.parse(fs.readFileSync(configFilePath, 'utf-8'))
-    }
-  } catch (error) {
-    console.error('Failed to load config:', error)
-  }
-
-  // If we couldn't load settings, create with defaults and save
-  fs.writeFileSync(configFilePath, JSON.stringify(defaultConfig, null, 2))
-  return defaultConfig
-}
-
-// Save config
-const saveConfig = (config: Config) => {
-  try {
-    fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2))
-
-    if (config.saveLocation) {
-      setProjectsDirectory(config.saveLocation)
-    }
-
-    return true
-  } catch (error) {
-    console.error('Failed to save config:', error)
-    return false
-  }
-}
-
 // Set up IPC handlers
 function setupIPC() {
-  // Get config
-  ipcMain.handle('config:get', () => {
-    console.log('Received config:get request')
-    const config = loadConfig()
-    setProjectsDirectory(config.saveLocation)
-    console.log('Returning config:', config)
-    return config
-  })
+  // File handlers
+  ipcMain.handle('dialog:selectFolder', () => selectFolder())
+  ipcMain.handle('dialog:selectFile', () => selectFile())
 
-  // Save config
-  ipcMain.handle('config:save', (_, newConfig) => {
-    console.log('Saving config:', newConfig)
-    return saveConfig(newConfig)
-  })
+  // Config handlers
+  ipcMain.handle('config:get', () => loadConfig())
+  ipcMain.handle('config:save', (_, config) => saveConfig(config))
+  ipcMain.handle('config:recentProjectId', (_, projectId) => updateRecentProjectId(projectId))
+  ipcMain.handle('config:recentProjectIds', (_, previousProjectId, newProjectId) =>
+    updateRecentProjectIds(previousProjectId, newProjectId)
+  )
 
-  // Select folder dialog
-  ipcMain.handle('dialog:selectFolder', async () => {
-    console.log('Opening folder selection dialog')
-    const { canceled, filePaths } = await dialog.showOpenDialog({
-      properties: ['openDirectory', 'createDirectory'],
-      title: 'Select Save Location'
-    })
-
-    if (!canceled && filePaths.length > 0) {
-      return filePaths[0]
-    }
-    return null
-  })
-
-  // Update recent project ID
-  ipcMain.handle('config:recentProjectId', (_, projectId) => {
-    console.log('Updating recent project ID:', projectId)
-    const newConfig = { ...loadConfig(), recentProjectId: projectId }
-    try {
-      fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2))
-    } catch (error) {
-      console.error('Failed to update recent project ID:', error)
-    }
-  })
-
-  // Set up project-related IPC handlers
+  // Project handlers
   ipcMain.handle('project:save', (_, project) => saveProject(project))
   ipcMain.handle('project:get', (_, projectId) => getProject(projectId))
   ipcMain.handle('project:getAll', () => getAllProjects())
   ipcMain.handle('project:delete', (_, projectId) => deleteProject(projectId))
+
+  // ADB handlers
+  ipcMain.handle('adb:execute', async (_, command) => {
+    try {
+      return await executeAdbCommand(command)
+    } catch (error) {
+      return { error: (error as Error).message }
+    }
+  })
 
   console.log('All IPC handlers registered')
 }

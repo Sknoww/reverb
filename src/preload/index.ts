@@ -20,5 +20,15 @@ contextBridge.exposeInMainWorld('configAPI', {
   saveConfig: (config) => ipcRenderer.invoke('config:save', config),
   selectSaveLocation: () => ipcRenderer.invoke('dialog:selectFolder'),
   notifySaveLocationChanged: (location) => ipcRenderer.send('config:saveLocationChanged', location),
-  updateRecentProjectId: (projectId) => ipcRenderer.send('config:recentProjectId', projectId)
+  updateRecentProjectId: (projectId) => ipcRenderer.invoke('config:recentProjectId', projectId),
+  notifyRecentProjectIdChanged: (projectId) =>
+    ipcRenderer.send('config:recentProjectIdChanged', projectId),
+  updateRecentProjectIds: (previousProjectId, newProjectId) =>
+    ipcRenderer.invoke('config:recentProjectIds', previousProjectId, newProjectId),
+  notifyRecentProjectIdsChanged: (projectIds) =>
+    ipcRenderer.send('config:recentProjectIdsChanged', projectIds)
+})
+
+contextBridge.exposeInMainWorld('dialogAPI', {
+  selectFile: () => ipcRenderer.invoke('dialog:selectFile')
 })

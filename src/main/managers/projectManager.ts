@@ -2,7 +2,8 @@
 import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
-import { Project } from './types'
+import { Project } from '../types'
+import { loadConfig } from './configManager'
 
 // Instead of a constant, use a variable that can be updated
 let projectsDir = path.join(app.getPath('userData'), 'projects')
@@ -35,7 +36,7 @@ export const saveProject = (project: Project): void => {
 export const getProject = (projectId: string): Project | null => {
   console.log('Getting project:', projectId)
   console.log('Projects dir:', projectsDir)
-  const filePath = path.join(projectsDir, `${projectId}.json`)
+  const filePath = path.join(projectsDir, projectId)
   if (!fs.existsSync(filePath)) return null
 
   const projectData = fs.readFileSync(filePath, 'utf-8')
@@ -45,7 +46,10 @@ export const getProject = (projectId: string): Project | null => {
 export const getAllProjects = (): Project[] => {
   if (!fs.existsSync(projectsDir)) return []
 
-  const projectFiles = fs.readdirSync(projectsDir).filter((file) => file.endsWith('.json'))
+  const config = loadConfig()
+  const projectFiles = fs
+    .readdirSync(projectsDir)
+    .filter((file) => config.mostRecentProjectIds.includes(file) && file.includes('.project'))
   return projectFiles.map((file) => {
     const projectData = fs.readFileSync(path.join(projectsDir, file), 'utf-8')
     return JSON.parse(projectData) as Project

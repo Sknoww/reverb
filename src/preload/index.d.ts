@@ -1,3 +1,4 @@
+import { Config } from '@/types'
 import { Project } from './types'
 
 declare global {
@@ -11,33 +12,19 @@ declare global {
     adbAPI: {
       executeCommand: (command: string) => Promise<string | { error: string }>
     }
-  }
-}
-
-interface Window {
-  // ... existing code
-  adbAPI: {
-    executeCommand: (command: string) => Promise<string | { error: string }>
-  }
-}
-
-interface Config {
-  saveLocation: string
-  recentProjectId: string
-  mostRecentProjectIds: string[]
-  // Add other settings as needed
-}
-
-declare global {
-  interface Window {
-    // Your existing declarations...
-
     configAPI: {
       getConfig: () => Promise<Config>
       saveConfig: (config: Partial<Config>) => Promise<boolean>
       selectSaveLocation: () => Promise<string | null>
       notifySaveLocationChanged: (location: string) => void
       updateRecentProjectId: (projectId: string) => void
+      notifyRecentProjectIdChanged: (projectId: string) => void
+      updateRecentProjectIds: (previousProjectId: string, newProjectId: string) => void
+      notifyRecentProjectIdsChanged: (projectIds: string[]) => void
+    }
+    dialogAPI: {
+      selectFile: () => Promise<string | null>
+      selectFolder: () => Promise<string | null>
     }
   }
 }

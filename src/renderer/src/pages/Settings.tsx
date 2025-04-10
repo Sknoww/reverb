@@ -6,7 +6,11 @@ import { useEffect, useState } from 'react'
 
 export function Settings() {
   const { isNavigating, safeNavigate } = useNavigationLock()
-  const [config, setConfig] = useState<Config>({ saveLocation: '', recentProjectId: '' })
+  const [config, setConfig] = useState<Config>({
+    saveLocation: '',
+    recentProjectId: '',
+    mostRecentProjectIds: []
+  })
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {

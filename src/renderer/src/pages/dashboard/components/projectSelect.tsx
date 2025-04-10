@@ -11,15 +11,23 @@ import { Project } from '@/types'
 
 export function ProjectMenu({
   projects,
-  currentProject
+  currentProject,
+  currentFile
 }: {
   projects: Project[] | null
   currentProject: Project | null
+  currentFile: string | ''
 }) {
   function generateProjectDropdownItems(projects: Project[] | null) {
     if (projects) {
-      return projects.map((project) => (
-        <DropdownMenuItem className="hover:bg-primary cursor-pointer" key={project.id}>
+      var filteredProjects = projects.filter((project) => project.id !== currentProject?.id)
+      filteredProjects = filteredProjects.reverse()
+      return filteredProjects.map((project) => (
+        <DropdownMenuItem
+          className="hover:bg-primary cursor-pointer"
+          key={project.id}
+          onClick={() => handleSelectProject(`${project.id}.project.json`)}
+        >
           {project.name}
         </DropdownMenuItem>
       ))
@@ -37,7 +45,7 @@ export function ProjectMenu({
   }
 
   function handleShowRecentProjects() {
-    if (projects) {
+    if (projects && projects.length > 0) {
       return (
         <>
           <DropdownMenuGroup>{generateProjectDropdownItems(projects)}</DropdownMenuGroup>
@@ -46,6 +54,25 @@ export function ProjectMenu({
       )
     } else {
       return null
+    }
+  }
+
+  const handleBrowseFiles = async () => {
+    const selectedFile = await window.dialogAPI.selectFile()
+    if (selectedFile) {
+      handleSelectProject(selectedFile)
+    }
+  }
+
+  const handleSelectProject = (projectId: string) => {
+    if (projectId) {
+      window.configAPI.updateRecentProjectId(projectId)
+      if (currentProject) {
+        window.configAPI.updateRecentProjectIds(currentFile, projectId)
+      }
+
+      window.location.reload()
+      window.configAPI.notifyRecentProjectIdChanged(projectId)
     }
   }
 
@@ -61,7 +88,9 @@ export function ProjectMenu({
           <DropdownMenuContent className="w-56 " align="start">
             {handleShowRecentProjects()}
             <DropdownMenuGroup>
-              <DropdownMenuItem className="cursor-pointer">Browse...</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => handleBrowseFiles()}>
+                Browse...
+              </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
