@@ -9,7 +9,8 @@ export function Settings() {
   const [config, setConfig] = useState<Config>({
     saveLocation: '',
     recentProjectId: '',
-    mostRecentProjectIds: []
+    mostRecentProjectIds: [],
+    commonCommands: []
   })
   const [isLoading, setIsLoading] = useState(false)
 

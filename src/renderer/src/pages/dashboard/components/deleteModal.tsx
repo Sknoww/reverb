@@ -1,4 +1,4 @@
-// DeleteModal.tsx
+// DeleteModal.tsx - Simplified version
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -27,10 +27,6 @@ export function DeleteModal({
   title = 'Delete',
   message = 'Are you sure?'
 }: DeleteModalProps) {
-  const handleConfirm = () => {
-    onSave(command)
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
@@ -42,7 +38,7 @@ export function DeleteModal({
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="button" variant="destructive" onClick={handleConfirm}>
+          <Button type="button" variant="destructive" onClick={() => onSave(command)}>
             Confirm
           </Button>
         </DialogFooter>

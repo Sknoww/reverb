@@ -38,6 +38,7 @@ export function Dashboard() {
   const [commandModalOpen, setCommandModalOpen] = useState(false)
   const [commandModalCommonOpen, setCommandModalCommonOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deleteModalCommonOpen, setDeleteModalCommonOpen] = useState(false)
   const [commandAlreadyExists, setCommandAlreadyExists] = useState(false)
 
   // Loading state
@@ -240,8 +241,15 @@ export function Dashboard() {
     setDeleteModalOpen(true)
   }
 
+  // Show delete confirmation modal for common commands
+  const handleShowDeleteCommonModal = (command: AdbCommand) => {
+    setSelectedCommand(command)
+    setDeleteModalCommonOpen(true)
+  }
+
   // Delete command
   const handleDeleteCommand = (command: AdbCommand) => {
+    console.log('Deleting command:', command)
     if (project) {
       const filteredCommands = project.commands.filter((c) => c.keyword !== command.keyword)
       const updatedProject = { ...project, commands: filteredCommands }
@@ -258,13 +266,14 @@ export function Dashboard() {
       const updatedConfig = { ...config, commonCommands: filteredCommands }
       setConfig(updatedConfig)
       window.configAPI.updateCommonCommands(updatedConfig.commonCommands)
-      setDeleteModalOpen(false)
+      setDeleteModalCommonOpen(false)
     }
   }
 
   // Close delete modal
   const handleCloseDeleteModal = () => {
     setDeleteModalOpen(false)
+    setDeleteModalCommonOpen(false)
     setSelectedCommand(null)
   }
 
@@ -317,7 +326,6 @@ export function Dashboard() {
             </div>
 
             <Separator />
-
             {/* Quick input section */}
             <div className="py-5">
               <InputCard handleAddCommand={handleAddCommand} />
@@ -366,7 +374,7 @@ export function Dashboard() {
               commands={config.commonCommands}
               handleAddCommand={handleAddCommand}
               handleEditCommand={handleEditCommand}
-              handleShowDeleteModal={handleShowDeleteModal}
+              handleShowDeleteModal={handleShowDeleteCommonModal}
               handleReorderCommands={handleReorderCommonCommands}
               handleSendCommand={handleSendCommand}
             />
@@ -404,7 +412,7 @@ export function Dashboard() {
         />
 
         <DeleteModal
-          isOpen={deleteModalOpen}
+          isOpen={deleteModalCommonOpen}
           onClose={handleCloseDeleteModal}
           onSave={handleDeleteCommonCommand}
           command={selectedCommand!}
