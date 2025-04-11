@@ -1,15 +1,16 @@
 // Dashboard.tsx
 import { MainContainer } from '@/components/mainContainer'
 import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AdbCommand, Config, Project } from '@/types'
 import { useEffect, useState } from 'react'
 import { CommandModal } from './components/commandModal'
 import { CommandSidebar } from './components/commandSidebar'
-import { CommandTable } from './components/commandTable'
 import { ContextMenu } from './components/contextMenu'
 import { DeleteModal } from './components/deleteModal'
-import { InputCard } from './components/inputCard'
 import { ProjectMenu } from './components/projectSelect'
+import { CommandTab } from './tabs/commandTab'
+import { FlowTab } from './tabs/flowTab'
 
 /**
  * Dashboard Component
@@ -326,43 +327,32 @@ export function Dashboard() {
             </div>
 
             <Separator />
-            {/* Quick input section */}
-            <div className="py-5">
-              <InputCard handleAddCommand={handleAddCommand} />
-            </div>
 
-            <Separator />
-
-            {/* Command tables */}
-            <div className="flex flex-col gap-5">
-              {/* Barcode commands */}
-              <div className="pt-5">
-                <CommandTable
-                  commands={project?.commands}
-                  header="Barcodes"
-                  type="barcode"
+            <Tabs defaultValue="commands" className="w-full">
+              <div className="flex items-center justify-center w-full mt-3">
+                <TabsList className="flex w-full justify-between">
+                  <TabsTrigger value="commands" className="w-1/2">
+                    Commands
+                  </TabsTrigger>
+                  <TabsTrigger value="flows" className="w-1/2">
+                    Flows
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+              <TabsContent value="commands" className="mt-0">
+                <CommandTab
+                  project={project}
                   setIsEditingCommand={setIsEditingCommand}
                   handleAddCommand={handleAddCommand}
                   handleEditCommand={handleEditCommand}
                   handleShowDeleteModal={handleShowDeleteModal}
                   handleSendCommand={handleSendCommand}
                 />
-              </div>
-
-              {/* Speech commands */}
-              <div>
-                <CommandTable
-                  commands={project?.commands}
-                  header="Speech"
-                  type="speech"
-                  setIsEditingCommand={setIsEditingCommand}
-                  handleAddCommand={handleAddCommand}
-                  handleEditCommand={handleEditCommand}
-                  handleShowDeleteModal={handleShowDeleteModal}
-                  handleSendCommand={handleSendCommand}
-                />
-              </div>
-            </div>
+              </TabsContent>
+              <TabsContent value="flows">
+                <FlowTab />
+              </TabsContent>
+            </Tabs>
           </div>
 
           <Separator orientation="vertical" />

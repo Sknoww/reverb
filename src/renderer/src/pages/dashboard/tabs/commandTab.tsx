@@ -23,7 +23,7 @@ export function CommandTab({
   return (
     <>
       {/* Quick input section */}
-      <div className="py-5">
+      <div className="py-3">
         <InputCard handleAddCommand={handleAddCommand} />
       </div>
 
@@ -32,7 +32,7 @@ export function CommandTab({
       {/* Command tables */}
       <div className="flex flex-col gap-5">
         {/* Barcode commands */}
-        <div className="pt-5">
+        <div>
           <CommandTable
             commands={project?.commands}
             header="Barcodes"
