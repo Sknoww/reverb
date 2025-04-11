@@ -280,6 +280,24 @@ export function Dashboard() {
   }
 
   // =========================================================================
+  // Command Handlers
+  // =========================================================================
+
+  // Send command to ADB
+  const handleSendCommand = async (command: AdbCommand) => {
+    const speechIntent = 'frontline.intent.action.SPEECH'
+    const barcodeIntent = 'frontline.intent.action.BARCODE'
+
+    const intent = command.type === 'speech' ? speechIntent : barcodeIntent
+    try {
+      const output = await window.adbAPI.executeCommand(intent, command.value)
+      console.log('Command output:', output)
+    } catch (error) {
+      console.error('Error sending command:', error)
+    }
+  }
+
+  // =========================================================================
   // Render UI
   // =========================================================================
   return (
@@ -319,6 +337,7 @@ export function Dashboard() {
                   handleAddCommand={handleAddCommand}
                   handleEditCommand={handleEditCommand}
                   handleShowDeleteModal={handleShowDeleteModal}
+                  handleSendCommand={handleSendCommand}
                 />
               </div>
 
@@ -332,6 +351,7 @@ export function Dashboard() {
                   handleAddCommand={handleAddCommand}
                   handleEditCommand={handleEditCommand}
                   handleShowDeleteModal={handleShowDeleteModal}
+                  handleSendCommand={handleSendCommand}
                 />
               </div>
             </div>
@@ -348,6 +368,7 @@ export function Dashboard() {
               handleEditCommand={handleEditCommand}
               handleShowDeleteModal={handleShowDeleteModal}
               handleReorderCommands={handleReorderCommonCommands}
+              handleSendCommand={handleSendCommand}
             />
           </div>
         </div>

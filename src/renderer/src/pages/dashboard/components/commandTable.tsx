@@ -18,6 +18,7 @@ interface CommandTableProps {
   handleAddCommand: (isCommon: boolean, inputValue?: string, type?: string) => void
   handleEditCommand: (command: AdbCommand | null, isCommon: boolean) => void
   handleShowDeleteModal: (command: AdbCommand) => void
+  handleSendCommand: (command: AdbCommand) => void
 }
 
 export function CommandTable({
@@ -27,7 +28,8 @@ export function CommandTable({
   setIsEditingCommand,
   handleAddCommand,
   handleEditCommand,
-  handleShowDeleteModal
+  handleShowDeleteModal,
+  handleSendCommand
 }: CommandTableProps) {
   // Command action buttons component
   const CommandActions = ({ command }: { command: AdbCommand }) => (
@@ -51,7 +53,7 @@ export function CommandTable({
       />
       <LuCirclePlay
         size={25}
-        onClick={() => {}}
+        onClick={() => handleSendCommand(command)}
         className="cursor-pointer hover:text-green-500"
         aria-label="Execute command"
         title="Execute command"

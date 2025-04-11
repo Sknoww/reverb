@@ -10,7 +10,7 @@ declare global {
       deleteProject: (projectId: string) => Promise<boolean>
     }
     adbAPI: {
-      executeCommand: (command: string) => Promise<string | { error: string }>
+      executeCommand: (intent: string, value: string) => Promise<string | { error: string }>
     }
     configAPI: {
       getConfig: () => Promise<Config>

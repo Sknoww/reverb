@@ -1,15 +1,46 @@
-// src/main/adbUtils.ts
 import { exec } from 'child_process'
 import { promisify } from 'util'
+const os = require('os')
 
 const execAsync = promisify(exec)
 
-export const executeAdbCommand = async (command: string): Promise<string> => {
+export interface AdbCommandResult {
+  success: boolean
+  output?: string
+  error?: string
+}
+
+export const executeAdbCommand = async (
+  intent: string,
+  value: string
+): Promise<AdbCommandResult> => {
   try {
-    const { stdout } = await execAsync(`adb ${command}`)
-    return stdout
-  } catch (error) {
+    let adb
+    if (process.platform === 'win32') {
+      // Determine the system architecture
+      adb = '.\\adb\\adb.exe'
+      // Simple approach - just use exec with the basic adb command
+    } else if (process.platform === 'darwin') {
+      adb = 'adb'
+    }
+
+    const adbResult = await execAsync(adb + ` shell am broadcast -a ${intent} --es data ${value}`)
+
+    console.log('ADB output:', adbResult.stdout)
+
+    if (adbResult.stderr) {
+      console.warn('ADB stderr:', adbResult.stderr)
+    }
+
+    return {
+      success: true,
+      output: adbResult.stdout
+    }
+  } catch (error: any) {
     console.error('ADB command failed:', error)
-    throw error
+    return {
+      success: false,
+      error: error.message || 'Unknown error executing ADB command'
+    }
   }
 }

@@ -19,6 +19,7 @@ interface CommandSidebarProps {
   handleEditCommand: (command: AdbCommand | null, isCommon: boolean) => void
   handleShowDeleteModal: (command: AdbCommand) => void
   handleReorderCommands: (result: AdbCommand[]) => void
+  handleSendCommand: (command: AdbCommand) => void
 }
 
 export function CommandSidebar({
@@ -27,7 +28,8 @@ export function CommandSidebar({
   handleAddCommand,
   handleEditCommand,
   handleShowDeleteModal,
-  handleReorderCommands
+  handleReorderCommands,
+  handleSendCommand
 }: CommandSidebarProps) {
   // Drag and drop handlers
   const onDragEnd = (result: any) => {
@@ -97,7 +99,7 @@ export function CommandSidebar({
             <Separator orientation="vertical" className="h-6" />
             <LuCirclePlay
               size={25}
-              onClick={() => {}}
+              onClick={() => handleSendCommand(command)}
               className="cursor-pointer hover:text-green-500"
             />
           </div>

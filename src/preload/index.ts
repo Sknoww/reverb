@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('projectAPI', {
 
 // Expose ADB API
 contextBridge.exposeInMainWorld('adbAPI', {
-  executeCommand: (command) => ipcRenderer.invoke('adb:execute', command)
+  executeCommand: (intent, value) => ipcRenderer.invoke('adb:execute', intent, value)
 })
 
 // src/preload/index.ts (add to your existing code)

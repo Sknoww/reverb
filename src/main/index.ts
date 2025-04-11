@@ -110,9 +110,9 @@ function setupIPC() {
   ipcMain.handle('project:delete', (_, projectId) => deleteProject(projectId))
 
   // ADB handlers
-  ipcMain.handle('adb:execute', async (_, command) => {
+  ipcMain.handle('adb:execute', async (_, intent, value) => {
     try {
-      return await executeAdbCommand(command)
+      return await executeAdbCommand(intent, value)
     } catch (error) {
       return { error: (error as Error).message }
     }
