@@ -7,6 +7,13 @@ export interface AdbCommand {
   description?: string
 }
 
+export interface Flow {
+  name: string
+  description?: string
+  commands: AdbCommand[]
+  delay?: number
+}
+
 export interface Project {
   id: string
   name: string
@@ -14,6 +21,7 @@ export interface Project {
   createdAt: string
   updatedAt: string
   commands: AdbCommand[]
+  flows: Flow[]
 }
 
 export interface Config {

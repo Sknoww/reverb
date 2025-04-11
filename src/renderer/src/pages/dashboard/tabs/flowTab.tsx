@@ -1,3 +1,3 @@
 export function FlowTab() {
-  return <></>
+  return <>{/* Flow table */}</>
 }

@@ -24,7 +24,11 @@ export function CommandTab({
     <>
       {/* Quick input section */}
       <div className="py-3">
-        <InputCard handleAddCommand={handleAddCommand} />
+        <InputCard
+          commands={project?.commands}
+          handleAddCommand={handleAddCommand}
+          handleSendCommand={handleSendCommand}
+        />
       </div>
 
       <Separator />
