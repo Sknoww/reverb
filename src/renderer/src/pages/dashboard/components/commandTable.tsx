@@ -79,10 +79,10 @@ export function CommandTable({
       </div>
 
       {/* Table */}
-      <div className="w-full rounded-lg border">
+      <div className="w-full rounded-lg border border-zinc-700">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="border-zinc-700">
               <TableHead className="w-[100px]">Name</TableHead>
               <TableHead>Keyword</TableHead>
               <TableHead>Value</TableHead>
@@ -93,7 +93,7 @@ export function CommandTable({
           <TableBody>
             {filteredCommands.length > 0 ? (
               filteredCommands.map((command) => (
-                <TableRow key={command.keyword} className="hover:bg-transparent">
+                <TableRow key={command.keyword} className="hover:bg-transparent border-zinc-700">
                   <TableCell className="font-medium">{command.name}</TableCell>
                   <TableCell>{command.keyword}</TableCell>
                   <TableCell>{command.value}</TableCell>

@@ -1,5 +1,6 @@
 // src/renderer/src/types/index.ts
 export interface AdbCommand {
+  id: string
   name: string
   keyword: string
   type: string
@@ -8,10 +9,11 @@ export interface AdbCommand {
 }
 
 export interface Flow {
+  id: string
   name: string
   description?: string
   commands: AdbCommand[]
-  delay?: number
+  delay: number
 }
 
 export interface Project {

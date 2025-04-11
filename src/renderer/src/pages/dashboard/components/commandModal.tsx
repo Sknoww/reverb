@@ -17,12 +17,14 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { AdbCommand } from '@/types'
+import { AdbCommand, Flow } from '@/types'
 import { useEffect, useState } from 'react'
 import { MdKeyboardArrowDown } from 'react-icons/md'
+import { v4 as uuid } from 'uuid'
 
 // Default empty command template
 const defaultCommand: AdbCommand = {
+  id: uuid(),
   name: '',
   type: 'barcode',
   keyword: '',
@@ -34,9 +36,13 @@ interface CommandModalProps {
   isOpen: boolean
   onClose: () => void
   command?: AdbCommand | null
+  flow?: Flow | null
   onSave: (command: AdbCommand, prevousCommand?: AdbCommand) => void
   onSaveCommon: (command: AdbCommand, prevousCommand?: AdbCommand) => void
+  onSaveToFlow?: (command: AdbCommand, flow: Flow, previousCommand?: AdbCommand | null) => void // Updated
   isCommon?: boolean
+  isForFlow?: boolean
+  isAddingNew?: boolean
   title?: string
   error?: boolean
 }
@@ -45,22 +51,30 @@ export function CommandModal({
   isOpen,
   onClose,
   command = null,
+  flow = null,
   onSave,
   onSaveCommon,
+  onSaveToFlow,
   isCommon = false,
+  isForFlow = false,
+  isAddingNew = false,
   title = 'Command',
   error
 }: CommandModalProps) {
   // State
   const [editedCommand, setEditedCommand] = useState<AdbCommand>(command || { ...defaultCommand })
-  const isNewCommand = !command
+  const isNewCommand = isAddingNew || !command
 
   // Reset form when a new command is selected or when switching between edit/create modes
   useEffect(() => {
-    if (command) {
-      setEditedCommand(command)
-    } else {
-      setEditedCommand({ ...defaultCommand })
+    if (isOpen) {
+      if (command) {
+        // If a command is provided, we're editing
+        setEditedCommand(command)
+      } else {
+        // No command provided, we're adding a new one
+        setEditedCommand({ ...defaultCommand, id: uuid() })
+      }
     }
   }, [command, isOpen])
 
@@ -75,8 +89,16 @@ export function CommandModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const saveHandler = isCommon ? onSaveCommon : onSave
-    isNewCommand ? saveHandler(editedCommand) : saveHandler(editedCommand, command)
+
+    if (isForFlow && flow && onSaveToFlow) {
+      // For flow commands, use isNewCommand to distinguish
+      // between adding and editing
+      onSaveToFlow(editedCommand, flow, isNewCommand ? null : command)
+    } else if (isCommon) {
+      isNewCommand ? onSaveCommon(editedCommand) : onSaveCommon(editedCommand, command)
+    } else {
+      isNewCommand ? onSave(editedCommand) : onSave(editedCommand, command)
+    }
   }
 
   const setCommandType = (type: string) => {
@@ -93,9 +115,23 @@ export function CommandModal({
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isNewCommand ? `Add New ${title}` : `Edit ${title}`}</DialogTitle>
+            <DialogTitle>
+              {isForFlow
+                ? isNewCommand
+                  ? `Add Command to Flow: ${flow?.name}`
+                  : `Edit Command in Flow: ${flow?.name}`
+                : isNewCommand
+                  ? `Add New ${title}`
+                  : `Edit ${title}`}
+            </DialogTitle>
             <DialogDescription>
-              {isNewCommand ? `Create a new ADB command.` : `Make changes to your ADB command.`}
+              {isForFlow
+                ? isNewCommand
+                  ? `Add a new command to the "${flow?.name}" flow.`
+                  : `Edit command in the "${flow?.name}" flow.`
+                : isNewCommand
+                  ? `Create a new ADB command.`
+                  : `Make changes to your ADB command.`}
             </DialogDescription>
           </DialogHeader>
 

@@ -78,7 +78,7 @@ export function InputCard({ commands, handleAddCommand, handleSendCommand }: Inp
               id="value"
               name="value"
               value={inputValue}
-              className="w-2/3 placeholder:text-opacity-5"
+              className="w-2/3 placeholder:text-opacity-5 border-zinc-700"
               placeholder="Value/Keyword"
               onChange={handleInputChange}
               autoFocus

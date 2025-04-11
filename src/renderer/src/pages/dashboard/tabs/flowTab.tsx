@@ -1,62 +1,113 @@
-import { Flow } from '@/types'
+import { AdbCommand, Flow, Project } from '@/types'
+import { useEffect, useRef, useState } from 'react'
 import { FlowCard } from '../components/flowCard'
 
-export function FlowTab() {
-  const testFlow: Flow = {
-    name: 'Test Flow',
-    description: 'This is a test flow',
-    commands: [
-      {
-        name: 'Example',
-        type: 'barcode',
-        keyword: 'ex',
-        value: 'example',
-        description: 'This is an example command'
-      },
-      {
-        name: 'Example2',
-        type: 'speech',
-        keyword: 'ex2',
-        value: 'test_string2',
-        description: 'This is another example command'
-      },
-      {
-        name: 'Example3',
-        type: 'barcode',
-        keyword: 'ex3',
-        value: 'test_string3',
-        description: 'This is a third example command'
-      },
-      {
-        name: 'Example4',
-        type: 'speech',
-        keyword: 'ex4',
-        value: 'test_string4',
-        description: 'This is a fourth example command'
-      },
-      {
-        name: 'Example5',
-        type: 'barcode',
-        keyword: 'ex5',
-        value: 'test_string5',
-        description: 'This is a fifth example command'
-      },
-      {
-        name: 'Example6',
-        type: 'speech',
-        keyword: 'ex6',
-        value: 'test_string6',
-        description: 'This is a sixth example command'
-      }
-    ],
-    delay: 1000
+interface FlowTabProps {
+  project: Project | null
+  isFlowRunning: boolean
+  activeFlowId: string | null
+  setIsEditingFlow: (isEditingFlow: boolean) => void
+  handleEditFlow: (flow: Flow) => void
+  handleShowDeleteModal: (flow: Flow) => void
+  handleSendFlow: (flow: Flow) => void
+  handleAddCommandToFlow: (flow: Flow, command: AdbCommand) => void
+  handleEditFlowCommand: (flow: Flow, command: AdbCommand) => void
+  handleDeleteFlowCommand: (flow: Flow, command: AdbCommand) => void
+  handleReorderFlowCommands: (flow: Flow, commands: AdbCommand[]) => void
+}
+
+export function FlowTab({
+  project,
+  isFlowRunning,
+  activeFlowId,
+  handleEditFlow,
+  handleShowDeleteModal,
+  handleSendFlow,
+  handleAddCommandToFlow,
+  handleEditFlowCommand,
+  handleDeleteFlowCommand,
+  handleReorderFlowCommands
+}: FlowTabProps) {
+  const [localProject, setLocalProject] = useState<Project | null>(project)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setLocalProject(project)
+  }, [project])
+
+  // Reset scroll position when component mounts or project changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      // Force scroll to top
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = 0
+        }
+      }, 0)
+    }
+  }, [project])
+
+  const handleGenerateFlowCards = (project: Project | null) => {
+    if (project) {
+      const flowCards = project.flows.map((flow) => (
+        <FlowCard
+          flow={flow}
+          key={flow.name}
+          onDeleteFlow={handleShowDeleteModal}
+          onEditFlow={handleEditFlow}
+          onRunFlow={handleRunFlow}
+          onAddCommand={handleAddCommand}
+          onEditCommand={handleEditCommand}
+          onDeleteCommand={handleDeleteCommand}
+          onReorderCommands={handleReorderCommands}
+          onSendCommand={handleSendCommand}
+          isFlowRunning={isFlowRunning}
+          activeFlowId={activeFlowId}
+        />
+      ))
+      return flowCards
+    }
+    return null
+  }
+
+  const handleRunFlow = (flow: Flow) => {
+    handleSendFlow(flow)
+  }
+
+  const handleAddCommand = (flow: Flow, command: AdbCommand) => {
+    handleAddCommandToFlow(flow, command)
+  }
+
+  const handleEditCommand = (flow: Flow, command: AdbCommand) => {
+    handleEditFlowCommand(flow, command)
+  }
+
+  const handleDeleteCommand = (flow: Flow, command: AdbCommand) => {
+    handleDeleteFlowCommand(flow, command)
+  }
+
+  const handleReorderCommands = (flow: Flow, commands: AdbCommand[]) => {
+    if (project) {
+      // Pass the reordered commands to a handler in Dashboard
+      handleReorderFlowCommands(flow, commands)
+    }
+  }
+
+  const handleSendCommand = (flow: Flow, command: AdbCommand) => {
+    console.log('Sending command in flow:', flow)
   }
 
   return (
-    <>
-      <div>
-        <FlowCard flow={testFlow} />
-      </div>
-    </>
+    <div
+      ref={scrollContainerRef}
+      className="h-full overflow-y-auto"
+      style={{
+        height: '100%',
+        maxHeight: 'calc(100vh - 100px)', // Adjust based on your layout
+        position: 'relative'
+      }}
+    >
+      <div className="flex flex-col gap-2 p-4">{handleGenerateFlowCards(localProject)}</div>
+    </div>
   )
 }

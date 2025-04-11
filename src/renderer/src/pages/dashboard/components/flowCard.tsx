@@ -1,4 +1,3 @@
-// InputCard.tsx
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,16 +11,133 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { AdbCommand, Flow } from '@/types'
-import { useState } from 'react'
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
-import { LuCircleMinus, LuCirclePlay, LuPencil } from 'react-icons/lu'
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core'
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { useEffect, useRef, useState } from 'react'
+import { LuCircleMinus, LuCirclePlay, LuGripVertical, LuPencil, LuSquare } from 'react-icons/lu'
+import { v4 as uuid } from 'uuid'
 
 interface FlowCardProps {
   flow: Flow
+  isFlowRunning: boolean
+  activeFlowId: string | null
+  onDeleteFlow: (flow: Flow) => void
+  onEditFlow: (flow: Flow) => void
+  onRunFlow: (flow: Flow) => void
+  onAddCommand: (flow: Flow, command: AdbCommand) => void
+  onEditCommand: (flow: Flow, command: AdbCommand) => void
+  onDeleteCommand: (flow: Flow, command: AdbCommand) => void
+  onReorderCommands: (flow: Flow, commands: AdbCommand[]) => void
+  onSendCommand: (flow: Flow, command: AdbCommand) => void
 }
 
-export function FlowCard({ flow }: FlowCardProps) {
+// Sortable Command Row Component
+function SortableCommandRow({ command, flow, onEditCommand, onDeleteCommand, onSendCommand }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: command.id
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1 : 0,
+    position: 'relative' as const
+  }
+
+  return (
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      className={`hover:bg-transparent border-zinc-700 ${isDragging ? 'bg-primary-100' : ''}`}
+    >
+      <TableCell className="font-medium">
+        <div className="flex items-center gap-2">
+          <div {...attributes} {...listeners} className="cursor-grab w-5 flex-shrink-0">
+            <LuGripVertical size={20} />
+          </div>
+          <span>{command.name}</span>
+        </div>
+      </TableCell>
+      <TableCell>{command.keyword}</TableCell>
+      <TableCell>{command.value}</TableCell>
+      <TableCell className="text-right">{command.description}</TableCell>
+      <TableCell className="text-right">
+        <div className="flex items-end justify-end gap-2">
+          <LuCircleMinus
+            size={25}
+            onClick={() => onDeleteCommand(flow, command)}
+            className="cursor-pointer hover:text-red-500"
+            aria-label="Delete command"
+            title="Delete command"
+          />
+          <LuPencil
+            size={25}
+            onClick={() => onEditCommand(flow, command)}
+            className="cursor-pointer hover:text-primary"
+            aria-label="Edit command"
+            title="Edit command"
+          />
+          <LuCirclePlay
+            size={25}
+            onClick={() => onSendCommand(flow, command)}
+            className="cursor-pointer hover:text-green-500"
+            aria-label="Execute command"
+            title="Execute command"
+          />
+        </div>
+      </TableCell>
+    </TableRow>
+  )
+}
+
+export function FlowCard({
+  flow,
+  isFlowRunning,
+  activeFlowId,
+  onDeleteFlow,
+  onEditFlow,
+  onAddCommand,
+  onRunFlow,
+  onEditCommand,
+  onDeleteCommand,
+  onSendCommand,
+  onReorderCommands
+}: FlowCardProps) {
   const [localFlow, setLocalFlow] = useState<Flow>(flow)
+  const tableRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setLocalFlow(flow)
+  }, [flow])
+
+  // Set up sensors for both pointer (mouse/touch) and keyboard interactions
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5 // Minimum distance for drag activation
+      }
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates
+    })
+  )
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value
@@ -29,43 +145,60 @@ export function FlowCard({ flow }: FlowCardProps) {
       const newFlow = { ...localFlow, delay: parseInt(value) }
       setLocalFlow(newFlow)
     }
+    onEditFlow(localFlow)
   }
 
-  const onDragEnd = (result: DropResult) => {
-    // Dropped outside the list
-    if (!result.destination) {
-      return
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      // Create a new array with the reordered commands
+      const oldIndex = commandsWithIds.findIndex((command) => command.id === active.id)
+      const newIndex = commandsWithIds.findIndex((command) => command.id === over.id)
+
+      const newCommands = arrayMove(commandsWithIds, oldIndex, newIndex)
+
+      // Update local state for immediate UI feedback
+      setLocalFlow((prev) => ({
+        ...prev,
+        commands: newCommands
+      }))
+
+      // Save the reordered commands to the project
+      onReorderCommands(localFlow, newCommands)
     }
-
-    const sourceIndex = result.source.index
-    const destinationIndex = result.destination.index
-
-    // If the item didn't move, don't do anything
-    if (sourceIndex === destinationIndex) {
-      return
-    }
-
-    // Create a copy of the commands array
-    const newCommands = Array.from(localFlow.commands)
-
-    // Remove the dragged item from the array
-    const [removed] = newCommands.splice(sourceIndex, 1)
-
-    // Insert the item at the new position
-    newCommands.splice(destinationIndex, 0, removed)
-
-    // Update the state with the new command order
-    setLocalFlow({
-      ...localFlow,
-      commands: newCommands
-    })
   }
+
+  // Make sure each command has a unique id
+  const commandsWithIds = localFlow.commands.map((command, index) => {
+    // If the command already has an id, use it; otherwise use the index as a fallback
+    return command.id ? command : { ...command, id: `command-${index}` }
+  })
+
+  // Get the list of command ids for SortableContext
+  const commandIds = commandsWithIds.map((command) => command.id)
 
   return (
     <Card className="w-full">
       <CardHeader className="w-full p-2 pb-0">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xl font-bold">{localFlow.name}</span>
+          <div className="flex flex-row items-center gap-2">
+            <span className="text-xl font-bold">{localFlow.name}</span>
+            <LuCircleMinus
+              size={25}
+              onClick={() => onDeleteFlow(localFlow)}
+              className="cursor-pointer hover:text-red-500"
+              aria-label="Delete command"
+              title="Delete command"
+            />
+            <LuPencil
+              size={25}
+              onClick={() => onEditFlow(localFlow)}
+              className="cursor-pointer hover:text-primary"
+              aria-label="Edit command"
+              title="Edit command"
+            />
+          </div>
           <div className="flex flex-row items-center">
             <div className="flex flex-row items-center gap-2 mr-2">
               <span className="text-lg">Delay (ms):</span>
@@ -83,14 +216,32 @@ export function FlowCard({ flow }: FlowCardProps) {
             <div className="flex flex-row items-center">
               <Button
                 className="h-max w-fit mr-0 rounded-tr-none rounded-br-none"
-                onClick={() => {}}
+                onClick={() => onRunFlow?.(localFlow)}
+                variant={isFlowRunning && activeFlowId === localFlow.id ? 'destructive' : 'default'}
               >
-                Run Flow <LuCirclePlay />
+                {isFlowRunning && activeFlowId === localFlow.id ? (
+                  <>
+                    Stop Flow <LuSquare />
+                  </>
+                ) : (
+                  <>
+                    Run Flow <LuCirclePlay />
+                  </>
+                )}
               </Button>
               <Separator orientation="vertical" className="h-9" />
               <Button
                 className="h-max w-fit mr-0 rounded-tl-none rounded-bl-none"
-                onClick={() => {}}
+                onClick={() =>
+                  onAddCommand(localFlow, {
+                    id: uuid(),
+                    name: '',
+                    type: 'barcode',
+                    keyword: '',
+                    value: '',
+                    description: ''
+                  })
+                }
               >
                 Add Command
               </Button>
@@ -99,93 +250,51 @@ export function FlowCard({ flow }: FlowCardProps) {
         </div>
       </CardHeader>
       <CardContent className="w-full p-2">
-        <div className="flex flex-col w-full gap-5">
-          <FlowTable flowCommands={localFlow.commands} onDragEnd={onDragEnd} />
+        <div className="flex flex-col w-full gap-2 pb-2">
+          <Separator />
+          <div ref={tableRef} className="max-h-[30vh] overflow-auto">
+            <Table>
+              <TableHeader className="sticky top-0 z-10">
+                <TableRow className="sticky top-0 border-zinc-700 bg-background">
+                  <TableHead className="w-[150px]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 flex-shrink-0">
+                        {/* Empty div to align with the grip icon */}
+                      </div>
+                      <span>Name</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>Keyword</TableHead>
+                  <TableHead>Value</TableHead>
+                  <TableHead className="text-right">Description</TableHead>
+                  <TableHead className="w-[100px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+              >
+                <TableBody>
+                  <SortableContext items={commandIds} strategy={verticalListSortingStrategy}>
+                    {commandsWithIds.map((command) => (
+                      <SortableCommandRow
+                        key={command.id}
+                        command={command}
+                        flow={localFlow}
+                        onEditCommand={onEditCommand}
+                        onDeleteCommand={onDeleteCommand}
+                        onSendCommand={onSendCommand}
+                      />
+                    ))}
+                  </SortableContext>
+                </TableBody>
+              </DndContext>
+            </Table>
+          </div>
         </div>
       </CardContent>
     </Card>
-  )
-}
-
-export function FlowTable({
-  flowCommands,
-  onDragEnd
-}: {
-  flowCommands: AdbCommand[]
-  onDragEnd: (result: DropResult) => void
-}) {
-  const handleGenerateCommandRow = (command: AdbCommand, index: number) => {
-    return (
-      <Draggable key={command.keyword} draggableId={command.keyword} index={index}>
-        {(provided, snapshot) => (
-          <TableRow
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            className={`hover:bg-transparent ${snapshot.isDragging ? 'bg-primary-100 opacity-70' : ''}`}
-            style={{
-              ...provided.draggableProps.style,
-              cursor: 'grab'
-            }}
-          >
-            <TableCell className="font-medium">{command.name}</TableCell>
-            <TableCell>{command.keyword}</TableCell>
-            <TableCell>{command.value}</TableCell>
-            <TableCell className="text-right">{command.description}</TableCell>
-            <TableCell className="text-right">
-              <div className="flex items-end justify-end gap-2">
-                <LuCircleMinus
-                  size={25}
-                  onClick={() => {}}
-                  className="cursor-pointer hover:text-red-500"
-                  aria-label="Delete command"
-                  title="Delete command"
-                />
-                <LuPencil
-                  size={25}
-                  onClick={() => {}}
-                  className="cursor-pointer hover:text-primary"
-                  aria-label="Edit command"
-                  title="Edit command"
-                />
-                <LuCirclePlay
-                  size={25}
-                  onClick={() => {}}
-                  className="cursor-pointer hover:text-green-500"
-                  aria-label="Execute command"
-                  title="Execute command"
-                />
-              </div>
-            </TableCell>
-          </TableRow>
-        )}
-      </Draggable>
-    )
-  }
-
-  return (
-    <div className="h-[30vh] relative overflow-auto">
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Table>
-          <TableHeader className="sticky top-0 bg-primary">
-            <TableRow className="sticky top-0">
-              <TableHead className="w-[100px]">Name</TableHead>
-              <TableHead>Keyword</TableHead>
-              <TableHead>Value</TableHead>
-              <TableHead className="text-right">Description</TableHead>
-              <TableHead className="w-[100px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <Droppable droppableId="table-body" direction="vertical">
-            {(provided) => (
-              <TableBody className="max-h-2" ref={provided.innerRef} {...provided.droppableProps}>
-                {flowCommands.map((command, index) => handleGenerateCommandRow(command, index))}
-                {provided.placeholder}
-              </TableBody>
-            )}
-          </Droppable>
-        </Table>
-      </DragDropContext>
-    </div>
   )
 }

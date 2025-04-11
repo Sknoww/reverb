@@ -1,4 +1,3 @@
-// ProjectModal.tsx
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -11,54 +10,54 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Project } from '@/types'
+import { Flow } from '@/types'
 import { useEffect, useState } from 'react'
+import { v4 as uuid } from 'uuid'
 
-// Default empty project template
-const defaultProject: Project = {
-  id: '',
-  name: '',
-  description: '',
-  createdAt: '',
-  updatedAt: '',
-  commands: [],
-  flows: []
-}
-
-interface ProjectModalProps {
+interface FlowModalProps {
   isOpen: boolean
   onClose: () => void
-  project?: Project | null
-  onSave: (project: Project, isNewProject: boolean) => void
+  flow?: Flow | null
+  onSave: (flow: Flow, isNewFlow: boolean) => void
   title?: string
   error?: boolean
 }
 
-export function ProjectModal({
+const defaultFlow: Flow = {
+  id: uuid(),
+  name: '',
+  description: '',
+  commands: [],
+  delay: 3000
+}
+
+export function FlowModal({
   isOpen,
   onClose,
-  project = null,
+  flow = null,
   onSave,
-  title = 'Project',
+  title = 'Flow',
   error
-}: ProjectModalProps) {
+}: FlowModalProps) {
   // State
-  const [editedProject, setEditedProject] = useState<Project>(project || { ...defaultProject })
-  const isNewProject = !project
+  const [editedFlow, setEditedFlow] = useState<Flow>(flow || { ...defaultFlow })
+  const isNewflow = !flow
 
-  // Reset form when a new project is selected or when switching between edit/create modes
+  // Reset form when a new flow is selected or when switching between edit/create modes
   useEffect(() => {
-    if (project) {
-      setEditedProject(project)
+    if (flow) {
+      // Preserve the existing flow's ID and other properties
+      setEditedFlow(flow)
     } else {
-      setEditedProject({ ...defaultProject })
+      // For new flows, generate a new ID
+      setEditedFlow({ ...defaultFlow, id: uuid() })
     }
-  }, [project, isOpen])
+  }, [flow, isOpen])
 
   // Handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setEditedProject((prev) => ({
+    setEditedFlow((prev) => ({
       ...prev,
       [name]: value
     }))
@@ -66,7 +65,7 @@ export function ProjectModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(editedProject, isNewProject)
+    onSave(editedFlow, isNewflow)
   }
 
   return (
@@ -74,9 +73,9 @@ export function ProjectModal({
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isNewProject ? `Add New ${title}` : `Edit ${title}`}</DialogTitle>
+            <DialogTitle>{isNewflow ? `Add New ${title}` : `Edit ${title}`}</DialogTitle>
             <DialogDescription>
-              {isNewProject ? `Create a new project.` : `Make changes to your project.`}
+              {isNewflow ? `Create a new flow.` : `Make changes to your flow.`}
             </DialogDescription>
           </DialogHeader>
 
@@ -89,7 +88,22 @@ export function ProjectModal({
               <Input
                 id="name"
                 name="name"
-                value={editedProject.name}
+                value={editedFlow.name}
+                onChange={handleInputChange}
+                className="col-span-3"
+                required
+              />
+            </div>
+
+            {/* Delay Field */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="delay" className="text-right">
+                Delay (ms)
+              </Label>
+              <Input
+                id="delay"
+                name="delay"
+                value={editedFlow.delay}
                 onChange={handleInputChange}
                 className="col-span-3"
                 required
@@ -104,7 +118,7 @@ export function ProjectModal({
               <Textarea
                 id="description"
                 name="description"
-                value={editedProject.description}
+                value={editedFlow.description}
                 onChange={handleInputChange}
                 className="col-span-3"
               />
@@ -115,7 +129,7 @@ export function ProjectModal({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">{isNewProject ? 'Create' : 'Save changes'}</Button>
+            <Button type="submit">{isNewflow ? 'Create' : 'Save changes'}</Button>
           </DialogFooter>
         </form>
 
@@ -136,7 +150,7 @@ export function ProjectModal({
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
-            <span>Project already exists</span>
+            <span>flow already exists</span>
           </div>
         )}
       </DialogContent>

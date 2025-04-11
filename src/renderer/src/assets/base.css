@@ -67,7 +67,7 @@
     /* White: #FCF8F8 - converted to HSL: 0 20% 98% */
     /* Violet: #4B4E6D - converted to HSL: 235 17.8% 36.3% */
 
-    --background: 0 0% 13.3%; /* #222222 */
+    --background: 240 10% 4%; /* #222222 */
     --foreground: 0 20% 98%; /* #FCF8F8 */
 
     --primary: 235 17.8% 36.3%; /* #4B4E6D */
@@ -81,7 +81,7 @@
     --ring: 235 17.8% 36.3%; /* #4B4E6D */
 
     /* Other variables updated to match the new theme */
-    --card: 0 0% 13.3%; /* #222222 */
+    --card: 240 10% 4%; /* #222222 */
     --card-foreground: 0 20% 98%; /* #FCF8F8 */
 
     --popover: 0 0% 13.3%; /* #222222 */
@@ -104,7 +104,7 @@
 @media (prefers-color-scheme: light) {
   :root {
     /* Same values as above - ensures light mode is overridden */
-    --background: 0 0% 13.3%; /* #222222 */
+    --background: 240 10% 4%; /* #222222 */
     --foreground: 0 20% 98%; /* #FCF8F8 */
 
     --primary: 235 17.8% 36.3%; /* #4B4E6D */
@@ -113,10 +113,10 @@
     --secondary: 235 17.8% 45%; /* Lighter variant of #4B4E6D */
     --secondary-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --card: 0 0% 13.3%; /* #222222 */
+    --card: 240 10% 4%; /* #222222 */
     --card-foreground: 0 20% 98%; /* #FCF8F8 */
 
-    --popover: 0 0% 13.3%; /* #222222 */
+    --popover: 240 10% 4%; /* #222222 */
     --popover-foreground: 0 20% 98%; /* #FCF8F8 */
 
     --muted: 0 0% 20%; /* Slightly lighter than background for contrast */
@@ -140,11 +140,11 @@
 html,
 body {
   color: #fcf8f8 !important;
-  background-color: #222222 !important;
+  background-color: #09090b !important;
 }
 
 /* Target all common text elements */
-p,
+/* p,
 h1,
 h2,
 h3,
@@ -169,10 +169,10 @@ cite,
 code,
 pre {
   color: #fcf8f8 !important;
-}
+} */
 
 /* Override any shadcn text colors */
-.text-foreground,
+/* .text-foreground,
 .text-primary-foreground,
 .text-secondary-foreground,
 .text-muted-foreground,
@@ -180,7 +180,7 @@ pre {
 .text-popover-foreground,
 .text-card-foreground {
   color: #fcf8f8 !important;
-}
+} */
 
 /* Handle exceptions where you might want different color text */
 .text-destructive {
