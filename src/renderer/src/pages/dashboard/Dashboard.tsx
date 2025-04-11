@@ -519,6 +519,40 @@ export function Dashboard() {
     }
   }
 
+  const handleCopyFlowCommand = (flow: Flow, command: AdbCommand) => {
+    if (project) {
+      // Create a copy of the command with a new ID
+      const commandCopy = {
+        ...command,
+        id: uuid(),
+        name: `${command.name}` // Optionally add "(Copy)" to differentiate
+      }
+
+      // Find the flow to update
+      const updatedFlows = project.flows.map((f) => {
+        if (f.id === flow.id) {
+          // Find the index of the original command
+          const originalIndex = f.commands.findIndex((cmd) => cmd.id === command.id)
+
+          // Create a new array with the copy inserted after the original
+          const updatedCommands = [...f.commands]
+          updatedCommands.splice(originalIndex + 1, 0, commandCopy)
+
+          return {
+            ...f,
+            commands: updatedCommands
+          }
+        }
+        return f
+      })
+
+      // Update the project with the new flows array
+      const updatedProject = { ...project, flows: updatedFlows }
+      setProject(updatedProject)
+      window.projectAPI.saveProject(updatedProject)
+    }
+  }
+
   // Sleep helper function that can be aborted
   const sleep = (ms: number, signal: AbortSignal) => {
     return new Promise<void>((resolve, reject) => {
@@ -667,6 +701,7 @@ export function Dashboard() {
                 handleAddCommandToFlow={handleAddCommandToFlow}
                 handleEditFlowCommand={handleEditFlowCommand}
                 handleDeleteFlowCommand={handleDeleteFlowCommand}
+                handleCopyFlowCommand={handleCopyFlowCommand}
                 handleReorderFlowCommands={handleReorderFlowCommands}
                 isFlowRunning={isFlowRunning}
                 activeFlowId={activeFlowId}

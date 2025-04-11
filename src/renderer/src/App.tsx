@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
+import './app.css'
 import Dashboard from './pages/dashboard/Dashboard'
 import Settings from './pages/Settings'
 

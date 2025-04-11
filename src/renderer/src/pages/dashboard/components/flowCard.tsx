@@ -2,14 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { AdbCommand, Flow } from '@/types'
 import {
   closestCenter,
@@ -25,13 +18,12 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import { useEffect, useRef, useState } from 'react'
-import { LuCircleMinus, LuCirclePlay, LuGripVertical, LuPencil, LuSquare } from 'react-icons/lu'
+import { LuCircleMinus, LuCirclePlay, LuPencil, LuSquare } from 'react-icons/lu'
 import { v4 as uuid } from 'uuid'
+import { SortableCommandRow } from './sortableCommandRow'
 
 interface FlowCardProps {
   flow: Flow
@@ -41,70 +33,11 @@ interface FlowCardProps {
   onEditFlow: (flow: Flow) => void
   onRunFlow: (flow: Flow) => void
   onAddCommand: (flow: Flow, command: AdbCommand) => void
+  onCopyCommand: (flow: Flow, command: AdbCommand) => void
   onEditCommand: (flow: Flow, command: AdbCommand) => void
   onDeleteCommand: (flow: Flow, command: AdbCommand) => void
   onReorderCommands: (flow: Flow, commands: AdbCommand[]) => void
   onSendCommand: (flow: Flow, command: AdbCommand) => void
-}
-
-// Sortable Command Row Component
-function SortableCommandRow({ command, flow, onEditCommand, onDeleteCommand, onSendCommand }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: command.id
-  })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 1 : 0,
-    position: 'relative' as const
-  }
-
-  return (
-    <TableRow
-      ref={setNodeRef}
-      style={style}
-      className={`hover:bg-transparent border-zinc-700 ${isDragging ? 'bg-primary-100' : ''}`}
-    >
-      <TableCell className="font-medium">
-        <div className="flex items-center gap-2">
-          <div {...attributes} {...listeners} className="cursor-grab w-5 flex-shrink-0">
-            <LuGripVertical size={20} />
-          </div>
-          <span>{command.name}</span>
-        </div>
-      </TableCell>
-      <TableCell>{command.keyword}</TableCell>
-      <TableCell>{command.value}</TableCell>
-      <TableCell className="text-right">{command.description}</TableCell>
-      <TableCell className="text-right">
-        <div className="flex items-end justify-end gap-2">
-          <LuCircleMinus
-            size={25}
-            onClick={() => onDeleteCommand(flow, command)}
-            className="cursor-pointer hover:text-red-500"
-            aria-label="Delete command"
-            title="Delete command"
-          />
-          <LuPencil
-            size={25}
-            onClick={() => onEditCommand(flow, command)}
-            className="cursor-pointer hover:text-primary"
-            aria-label="Edit command"
-            title="Edit command"
-          />
-          <LuCirclePlay
-            size={25}
-            onClick={() => onSendCommand(flow, command)}
-            className="cursor-pointer hover:text-green-500"
-            aria-label="Execute command"
-            title="Execute command"
-          />
-        </div>
-      </TableCell>
-    </TableRow>
-  )
 }
 
 export function FlowCard({
@@ -114,6 +47,7 @@ export function FlowCard({
   onDeleteFlow,
   onEditFlow,
   onAddCommand,
+  onCopyCommand,
   onRunFlow,
   onEditCommand,
   onDeleteCommand,
@@ -252,7 +186,7 @@ export function FlowCard({
       <CardContent className="w-full p-2">
         <div className="flex flex-col w-full gap-2 pb-2">
           <Separator />
-          <div ref={tableRef} className="max-h-[30vh] overflow-auto">
+          <div ref={tableRef} className="max-h-[50vh] overflow-auto">
             <Table>
               <TableHeader className="sticky top-0 z-10">
                 <TableRow className="sticky top-0 border-zinc-700 bg-background">
@@ -266,6 +200,7 @@ export function FlowCard({
                   </TableHead>
                   <TableHead>Keyword</TableHead>
                   <TableHead>Value</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead className="text-right">Description</TableHead>
                   <TableHead className="w-[100px]"></TableHead>
                 </TableRow>
@@ -283,6 +218,7 @@ export function FlowCard({
                         key={command.id}
                         command={command}
                         flow={localFlow}
+                        onCopyCommand={onCopyCommand}
                         onEditCommand={onEditCommand}
                         onDeleteCommand={onDeleteCommand}
                         onSendCommand={onSendCommand}

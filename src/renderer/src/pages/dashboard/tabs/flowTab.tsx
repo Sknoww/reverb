@@ -11,6 +11,7 @@ interface FlowTabProps {
   handleShowDeleteModal: (flow: Flow) => void
   handleSendFlow: (flow: Flow) => void
   handleAddCommandToFlow: (flow: Flow, command: AdbCommand) => void
+  handleCopyFlowCommand: (flow: Flow, command: AdbCommand) => void
   handleEditFlowCommand: (flow: Flow, command: AdbCommand) => void
   handleDeleteFlowCommand: (flow: Flow, command: AdbCommand) => void
   handleReorderFlowCommands: (flow: Flow, commands: AdbCommand[]) => void
@@ -24,6 +25,7 @@ export function FlowTab({
   handleShowDeleteModal,
   handleSendFlow,
   handleAddCommandToFlow,
+  handleCopyFlowCommand,
   handleEditFlowCommand,
   handleDeleteFlowCommand,
   handleReorderFlowCommands
@@ -57,6 +59,7 @@ export function FlowTab({
           onEditFlow={handleEditFlow}
           onRunFlow={handleRunFlow}
           onAddCommand={handleAddCommand}
+          onCopyCommand={handleCopyFlowCommand}
           onEditCommand={handleEditCommand}
           onDeleteCommand={handleDeleteCommand}
           onReorderCommands={handleReorderCommands}
