@@ -562,7 +562,7 @@ export function Dashboard() {
           }
 
           // Execute the command
-          const result = await window.adbAPI.executeCommand(command.type, command.value)
+          const result = await handleSendCommand(command)
           console.log('Command result:', result)
 
           // Sleep between commands (abortable)
