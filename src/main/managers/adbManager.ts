@@ -1,8 +1,4 @@
 import { exec } from 'child_process'
-import { promisify } from 'util'
-const os = require('os')
-
-const execAsync = promisify(exec)
 
 export interface AdbCommandResult {
   success: boolean
@@ -24,17 +20,36 @@ export const executeAdbCommand = async (
       adb = 'adb'
     }
 
-    const adbResult = await execAsync(adb + ` shell am broadcast -a ${intent} --es data ${value}`)
+    const command = `${adb} shell "am broadcast -a ${intent} --es data \\"${value}\\""`
 
-    console.log('ADB output:', adbResult.stdout)
+    const adbResult = exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error('Error executing ADB command:', error)
+        return {
+          success: false,
+          error: error.message
+        }
+      }
 
-    if (adbResult.stderr) {
-      console.warn('ADB stderr:', adbResult.stderr)
-    }
+      if (stderr) {
+        console.error('Error executing ADB command:', stderr)
+        return {
+          success: false,
+          error: stderr
+        }
+      }
+      console.log('stdout:', stdout)
+      return {
+        success: true,
+        output: stdout
+      }
+    })
+
+    const result = adbResult.stdout ? adbResult.stdout.toString() : undefined
 
     return {
       success: true,
-      output: adbResult.stdout
+      output: result
     }
   } catch (error: any) {
     console.error('ADB command failed:', error)
