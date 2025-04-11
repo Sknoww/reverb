@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('adbAPI', {
 contextBridge.exposeInMainWorld('configAPI', {
   getConfig: () => ipcRenderer.invoke('config:get'),
   saveConfig: (config) => ipcRenderer.invoke('config:save', config),
+  getConfigFilePath: () => ipcRenderer.invoke('config:getFilePath'),
   selectSaveLocation: () => ipcRenderer.invoke('dialog:selectFolder'),
   notifySaveLocationChanged: (location) => ipcRenderer.send('config:saveLocationChanged', location),
   updateRecentProjectId: (projectId) => ipcRenderer.invoke('config:recentProjectId', projectId),
@@ -33,5 +34,6 @@ contextBridge.exposeInMainWorld('configAPI', {
 })
 
 contextBridge.exposeInMainWorld('dialogAPI', {
-  selectFile: () => ipcRenderer.invoke('dialog:selectFile')
+  selectFile: () => ipcRenderer.invoke('dialog:selectFile'),
+  openInEditor: (filePath) => ipcRenderer.invoke('dialog:openInEditor', filePath)
 })

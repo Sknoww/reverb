@@ -1,4 +1,4 @@
-import { dialog } from 'electron'
+import { dialog, shell } from 'electron'
 import path from 'path'
 
 // Select folder dialog
@@ -27,4 +27,15 @@ export const selectFile = async () => {
     return path.basename(filePaths[0])
   }
   return null
+}
+
+export const openInEditor = async (filePath: string) => {
+  try {
+    console.log('Opening file:', filePath)
+    await shell.openPath(filePath)
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error opening file:', error)
+    return { success: false, error: error.message }
+  }
 }

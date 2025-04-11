@@ -45,6 +45,10 @@ export const saveConfig = (config: Config): boolean => {
   }
 }
 
+export const getConfigFilePath = (): string => {
+  return configFilePath
+}
+
 export const updateRecentProjectId = (projectId: string): void => {
   const newConfig = { ...loadConfig(), recentProjectId: projectId }
   try {

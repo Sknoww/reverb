@@ -5,13 +5,14 @@ import icon from '../../resources/icon.png?asset'
 
 import { executeAdbCommand } from './managers/adbManager'
 import {
+  getConfigFilePath,
   loadConfig,
   saveConfig,
   updateCommonCommands,
   updateRecentProjectId,
   updateRecentProjectIds
 } from './managers/configManager'
-import { selectFile, selectFolder } from './managers/dialogManager'
+import { openInEditor, selectFile, selectFolder } from './managers/dialogManager'
 import { deleteProject, getAllProjects, getProject, saveProject } from './managers/projectManager'
 
 nativeTheme.themeSource = 'dark'
@@ -95,10 +96,12 @@ function setupIPC() {
   // File handlers
   ipcMain.handle('dialog:selectFolder', () => selectFolder())
   ipcMain.handle('dialog:selectFile', () => selectFile())
+  ipcMain.handle('dialog:openInEditor', (_, filePath) => openInEditor(filePath))
 
   // Config handlers
   ipcMain.handle('config:get', () => loadConfig())
   ipcMain.handle('config:save', (_, config) => saveConfig(config))
+  ipcMain.handle('config:getFilePath', () => getConfigFilePath())
   ipcMain.handle('config:recentProjectId', (_, projectId) => updateRecentProjectId(projectId))
   ipcMain.handle('config:recentProjectIds', (_, previousProjectId, newProjectId) =>
     updateRecentProjectIds(previousProjectId, newProjectId)

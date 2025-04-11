@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AdbCommand, Config, Flow, Project } from '@/types'
 import { useEffect, useState } from 'react'
+import { LuRefreshCcw } from 'react-icons/lu'
 import { v4 as uuid } from 'uuid'
 import { CommandModal } from './components/commandModal'
 import { CommandSidebar } from './components/commandSidebar'
@@ -639,6 +640,19 @@ export function Dashboard() {
     setSelectedFlow(null)
   }
 
+  const handleOpenProjectFile = async () => {
+    if (project) {
+      // Construct the full path to the project file
+      const projectFilePath = `${config.saveLocation}/${project.id}.project.json`
+
+      try {
+        const result = await window.dialogAPI.openInEditor(projectFilePath)
+      } catch (error) {
+        console.error('Error opening file:', error)
+      }
+    }
+  }
+
   // =========================================================================
   // Render UI
   // =========================================================================
@@ -649,11 +663,20 @@ export function Dashboard() {
         <div className="flex-0 flex-col w-full h-full px-5 gap-5">
           {/* Header with project selection */}
           <div className="flex items-center justify-between w-full">
-            <ProjectMenu
-              currentProject={project}
-              projects={projects}
-              currentFile={config.recentProjectId}
-            />
+            <div className="flex flex-row items-center gap-2">
+              <ProjectMenu
+                currentProject={project}
+                projects={projects}
+                currentFile={config.recentProjectId}
+              />
+              <div
+                className="rounded-full p-1 cursor-pointer hover:bg-primary"
+                onClick={() => window.location.reload()}
+              >
+                <LuRefreshCcw size={20} />
+              </div>
+              <Button onClick={handleOpenProjectFile}>Open in Editor</Button>
+            </div>
             <div className="flex items-center gap-2">
               {tabIsFlows ? (
                 <Button className="w-fit" onClick={() => handleShowFlowModal()}>

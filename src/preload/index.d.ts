@@ -15,6 +15,7 @@ declare global {
     configAPI: {
       getConfig: () => Promise<Config>
       saveConfig: (config: Partial<Config>) => Promise<boolean>
+      getConfigFilePath: () => Promise<string | null>
       selectSaveLocation: () => Promise<string | null>
       notifySaveLocationChanged: (location: string) => void
       updateRecentProjectId: (projectId: string) => void
@@ -26,6 +27,7 @@ declare global {
     dialogAPI: {
       selectFile: () => Promise<string | null>
       selectFolder: () => Promise<string | null>
+      openInEditor: (filePath: string) => Promise<string | null>
     }
   }
 }
