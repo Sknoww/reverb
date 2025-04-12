@@ -2,6 +2,7 @@ appId: com.sknow.reverb
 productName: Reverb
 directories:
   buildResources: build
+  output: release
 extraResources:
   - ./extraResources/**
 files:
