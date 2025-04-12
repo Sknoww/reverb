@@ -1,7 +1,7 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
 import { join } from 'path'
-import icon from '../../resources/icon.png?asset'
+import logo from '../../resources/icon.png?asset'
 
 import { executeAdbCommand } from './managers/adbManager'
 import {
@@ -26,14 +26,15 @@ function createWindow(): void {
     minWidth: 900,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    ...(process.platform === 'linux' ? { logo } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       nodeIntegration: true,
       contextIsolation: true
     },
-    backgroundColor: '#535657'
+    backgroundColor: '#535657',
+    icon: join(__dirname, '../../resources/icon.png')
   })
 
   mainWindow.on('ready-to-show', () => {

@@ -1,5 +1,6 @@
 // Dashboard.tsx
 import { MainContainer } from '@/components/mainContainer'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -16,7 +17,9 @@ import { ProjectMenu } from './components/projectSelect'
 import { CommandTab } from './tabs/commandTab'
 import { FlowTab } from './tabs/flowTab'
 
-/**
+import logo from '../../assets/icon.png'
+
+/**import logo from '../../resources/icon.png?asset'
  * Dashboard Component
  * Main container for the ADB Command Manager application
  */
@@ -664,6 +667,9 @@ export function Dashboard() {
           {/* Header with project selection */}
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-row items-center gap-2">
+              <Avatar>
+                <AvatarImage src={logo} />
+              </Avatar>
               <ProjectMenu
                 currentProject={project}
                 projects={projects}
