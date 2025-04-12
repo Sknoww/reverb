@@ -75,6 +75,9 @@
   "build": {
     "appId": "com.sknow.reverb",
     "productName": "Reverb",
+    "extraResources": [
+      "./extraResources/**"
+    ],
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [

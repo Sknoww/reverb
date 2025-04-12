@@ -2,6 +2,8 @@ appId: com.sknow.reverb
 productName: Reverb
 directories:
   buildResources: build
+extraResources:
+  - ./extraResources/**
 files:
   - '!**/.vscode/*'
   - '!src/*'
