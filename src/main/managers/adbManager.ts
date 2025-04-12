@@ -22,8 +22,8 @@ export const executeAdbCommand = async (
       // Simple approach - just use exec with the basic adb command
     } else if (process.platform === 'darwin') {
       adb = app.isPackaged
-        ? path.join(process.resourcesPath, 'extraResources', 'adbMac\\adb')
-        : path.join(process.cwd(), 'extraResources', 'adbMac\\adb')
+        ? path.join(process.resourcesPath, 'extraResources', 'adbMac/adb')
+        : path.join(process.cwd(), 'extraResources', 'adbMac/adb')
     }
 
     const command = `${adb} shell "am broadcast -a ${intent} --es data \\"${value}\\""`

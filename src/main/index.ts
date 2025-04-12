@@ -1,8 +1,10 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
-import { join } from 'path'
+import path, { join } from 'path'
 import logo from '../../resources/icon.png?asset'
 
+import { execSync } from 'child_process'
+import fs from 'fs'
 import { executeAdbCommand } from './managers/adbManager'
 import {
   getConfigFilePath,
@@ -16,6 +18,29 @@ import { openInEditor, selectFile, selectFolder } from './managers/dialogManager
 import { deleteProject, getAllProjects, getProject, saveProject } from './managers/projectManager'
 
 nativeTheme.themeSource = 'dark'
+
+function ensureAdbPermissions() {
+  try {
+    const adbPath = app.isPackaged
+      ? path.join(process.resourcesPath, 'extraResources', 'adb')
+      : path.join(process.cwd(), 'extraResources', 'adb')
+
+    // Check if file exists
+    if (fs.existsSync(adbPath)) {
+      // Set executable permissions if needed
+      try {
+        execSync(`chmod +x "${adbPath}"`)
+        console.log('ADB permissions set successfully')
+      } catch (error) {
+        console.error('Error setting ADB permissions:', error)
+      }
+    } else {
+      console.error('ADB executable not found at path:', adbPath)
+    }
+  } catch (error) {
+    console.error('Error in ensureAdbPermissions:', error)
+  }
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -64,6 +89,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+  ensureAdbPermissions()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

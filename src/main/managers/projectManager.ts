@@ -48,7 +48,7 @@ export const getAllProjects = (): Project[] => {
   if (!fs.existsSync(projectsDir)) return []
 
   const config = loadConfig()
-  var projectFiles
+  var projectFiles: string[] = []
   config.mostRecentProjectIds.forEach((projectId) => {
     const filePath = path.join(projectsDir, projectId)
     if (fs.existsSync(filePath)) {

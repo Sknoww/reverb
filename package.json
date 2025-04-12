@@ -81,6 +81,7 @@
     "directories": {
       "buildResources": "build",
       "output": "release"
-    }
+    },
+    "postbuild:mac": "chmod +x release/mac*/Reverb.app/Contents/Resources/extraResources/adb"
   }
 }
