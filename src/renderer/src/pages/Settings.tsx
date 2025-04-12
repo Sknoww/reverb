@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { LuArrowBigLeft } from 'react-icons/lu'
 
 export function Settings() {
-  const { isNavigating, safeNavigate } = useNavigationLock()
+  const { safeNavigate } = useNavigationLock()
   const [config, setConfig] = useState<Config>({
     saveLocation: '',
     recentProjectId: '',

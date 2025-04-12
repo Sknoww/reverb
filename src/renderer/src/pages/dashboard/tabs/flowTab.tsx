@@ -96,7 +96,7 @@ export function FlowTab({
     }
   }
 
-  const handleSendCommand = (flow: Flow, command: AdbCommand) => {
+  const handleSendCommand = (flow: Flow) => {
     console.log('Sending command in flow:', flow)
   }
 

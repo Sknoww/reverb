@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { AdbCommand } from '@/types'
 import { useState } from 'react'
+import { v4 as uuid } from 'uuid'
 
 interface InputCardProps {
   commands?: AdbCommand[]
@@ -36,6 +37,7 @@ export function InputCard({ commands, handleAddCommand, handleSendCommand }: Inp
 
   const handleQuickCommand = (type: string) => {
     const command = {
+      id: uuid(),
       name: '',
       type: type,
       keyword: '',

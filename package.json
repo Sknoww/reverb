@@ -1,8 +1,8 @@
 {
-  "name": "reverb",
+  "name": "everb",
   "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
-  "main": "./out/main/index.js",
+  "description": "An electron app for managing ADB commands",
+  "main": "main.js",
   "author": "example.com",
   "homepage": "./",
   "scripts": {
@@ -71,5 +71,42 @@
     "tailwindcss": "^3.4.14",
     "typescript": "^5.5.2",
     "vite": "^5.3.1"
+  },
+  "build": {
+    "appId": "com.sknow.reverb",
+    "productName": "Reverb",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "build/icon.icns"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development"
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "main.js",
+      "preload.js",
+      "dist/**/*"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    }
   }
 }

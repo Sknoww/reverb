@@ -41,7 +41,7 @@ export function Dashboard() {
   // Flow state
   const [tabIsFlows, setTabIsFlows] = useState(false)
   const [selectedFlow, setSelectedFlow] = useState<Flow | null>(null)
-  const [isEditingFlow, setIsEditingFlow] = useState(false)
+  const [_, setIsEditingFlow] = useState(false)
   const [flowModalOpen, setFlowModalOpen] = useState(false)
   const [deleteModalFlowOpen, setDeleteModalFlowOpen] = useState(false)
   const [deleteModalFlowCommandOpen, setDeleteModalFlowCommandOpen] = useState(false)
@@ -335,7 +335,7 @@ export function Dashboard() {
   // =========================================================================
 
   // Save flow
-  const handleSaveFlow = async (updatedFlow: Flow, isNewFlow: boolean, previousFlow?: Flow) => {
+  const handleSaveFlow = async (updatedFlow: Flow, isNewFlow: boolean) => {
     if (!isNewFlow && project) {
       // We're editing an existing flow
       const updatedFlows = project.flows.map((flow) => {
@@ -397,7 +397,7 @@ export function Dashboard() {
     setFlowModalOpen(true)
   }
 
-  const handleAddCommandToFlow = (flow: Flow, command: AdbCommand) => {
+  const handleAddCommandToFlow = (flow: Flow) => {
     setSelectedFlow(flow)
     setIsEditingCommand(false)
     setCommandModalOpen(true)
@@ -649,7 +649,7 @@ export function Dashboard() {
       const projectFilePath = `${config.saveLocation}/${project.id}.project.json`
 
       try {
-        const result = await window.dialogAPI.openInEditor(projectFilePath)
+        await window.dialogAPI.openInEditor(projectFilePath)
       } catch (error) {
         console.error('Error opening file:', error)
       }
