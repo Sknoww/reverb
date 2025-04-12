@@ -9,6 +9,7 @@ jobs:
   build:
     name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
@@ -33,20 +34,22 @@ jobs:
       - name: Build for macOS
         if: matrix.os == 'macos-latest'
         run: npm run build:mac
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Prepare macOS artifacts
         if: matrix.os == 'macos-latest'
         run: |
-          mkdir artifacts
-          cp -r release/*.dmg artifacts/
-          cp -r release/*.zip artifacts/
+          mkdir -p artifacts
+          cp release/*.dmg artifacts/ || true
+          cp release/*.zip artifacts/ || true
 
       - name: Prepare Windows artifacts
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          mkdir artifacts
-          cp release/*-setup.exe artifacts/
+          mkdir -p artifacts
+          cp release/*-setup.exe artifacts/ || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -63,10 +66,15 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
 
+      - name: List downloaded files
+        run: find . -type f | sort
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             *-artifacts/*
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
