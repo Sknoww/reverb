@@ -1,8 +1,8 @@
 {
-  "name": "everb",
+  "name": "reverb",
   "version": "1.0.0",
   "description": "An electron app for managing ADB commands",
-  "main": "main.js",
+  "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "./",
   "scripts": {
@@ -77,35 +77,6 @@
     "productName": "Reverb",
     "extraResources": [
       "./extraResources/**"
-    ],
-    "mac": {
-      "category": "public.app-category.developer-tools",
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "build/icon.icns"
-    },
-    "win": {
-      "target": [
-        "nsis"
-      ],
-      "icon": "build/icon.ico"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "category": "Development"
-    },
-    "files": [
-      "build/**/*",
-      "node_modules/**/*",
-      "package.json",
-      "main.js",
-      "preload.js",
-      "dist/**/*"
     ],
     "directories": {
       "buildResources": "build",

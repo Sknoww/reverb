@@ -1,14 +1,6 @@
 node_modules
 dist
+release
 out
 .DS_Store
 *.log*
-release/win-unpacked/Reverb.exe
-release/win-unpacked/resources.pak
-.gitignore
-release/win-unpacked/snapshot_blob.bin
-release/win-unpacked/v8_context_snapshot.bin
-release/win-unpacked/vk_swiftshader.dll
-release/win-unpacked/vk_swiftshader_icd.json
-release/win-unpacked/vulkan-1.dll
-release/win-unpacked/resources/app.asar

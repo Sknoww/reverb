@@ -1,4 +1,6 @@
 import { exec } from 'child_process'
+import { app } from 'electron'
+import path from 'path'
 
 export interface AdbCommandResult {
   success: boolean
@@ -14,10 +16,14 @@ export const executeAdbCommand = async (
     let adb
     if (process.platform === 'win32') {
       // Determine the system architecture
-      adb = '.\\adb\\adb.exe'
+      adb = app.isPackaged
+        ? path.join(process.resourcesPath, 'extraResources', 'adbWin\\adb.exe')
+        : path.join(process.cwd(), 'extraResources', 'adbWin\\adb.exe')
       // Simple approach - just use exec with the basic adb command
     } else if (process.platform === 'darwin') {
-      adb = 'adb'
+      adb = app.isPackaged
+        ? path.join(process.resourcesPath, 'extraResources', 'adbMac\\adb')
+        : path.join(process.cwd(), 'extraResources', 'adbMac\\adb')
     }
 
     const command = `${adb} shell "am broadcast -a ${intent} --es data \\"${value}\\""`

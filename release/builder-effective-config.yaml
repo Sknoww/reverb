@@ -3,27 +3,8 @@ directories:
   buildResources: build
 appId: com.sknow.reverb
 productName: Reverb
-mac:
-  category: public.app-category.developer-tools
-  target:
-    - dmg
-    - zip
-  icon: build/icon.icns
-win:
-  target:
-    - nsis
-  icon: build/icon.ico
-linux:
-  target:
-    - AppImage
-    - deb
-  category: Development
-files:
+extraResources:
   - filter:
-      - build/**/*
-      - node_modules/**/*
-      - package.json
-      - main.js
-      - preload.js
-      - dist/**/*
+      - ./extraResources/**
+files: []
 electronVersion: 31.7.7

@@ -31,6 +31,9 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       nodeIntegration: true,
+      enableWebSQL: false,
+      webSecurity: true,
+      webgl: false,
       contextIsolation: true
     },
     backgroundColor: '#535657',
