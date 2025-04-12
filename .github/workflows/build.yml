@@ -55,13 +55,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          echo "Listing contents of release directory:"
-          ls -la release/ || echo "Release directory not found"
-          echo "Listing contents of dist directory:"
-          ls -la dist/ || echo "Dist directory not found"
-
           mkdir -p artifacts
-
           # Try to find installers in multiple locations
           if [ -d "release" ]; then
             cp release/*-setup.exe artifacts/ 2>/dev/null || echo "No setup.exe files found in release directory"
@@ -72,9 +66,6 @@ jobs:
             cp dist/*-setup.exe artifacts/ 2>/dev/null || echo "No setup.exe files found in dist directory"
             cp dist/*.exe artifacts/ 2>/dev/null || echo "No exe files found in dist directory"
           fi
-
-          echo "Contents of artifacts directory:"
-          ls -la artifacts/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
