@@ -79,7 +79,6 @@ export function FlowCard({
       const newFlow = { ...localFlow, delay: parseInt(value) }
       setLocalFlow(newFlow)
     }
-    onEditFlow(localFlow)
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
