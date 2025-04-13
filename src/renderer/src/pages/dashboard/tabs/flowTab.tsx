@@ -10,6 +10,7 @@ interface FlowTabProps {
   handleEditFlow: (flow: Flow) => void
   handleShowDeleteModal: (flow: Flow) => void
   handleSendFlow: (flow: Flow) => void
+  handleSendFlowCommand: (command: AdbCommand) => void
   handleAddCommandToFlow: (flow: Flow, command: AdbCommand) => void
   handleCopyFlowCommand: (flow: Flow, command: AdbCommand) => void
   handleEditFlowCommand: (flow: Flow, command: AdbCommand) => void
@@ -24,6 +25,7 @@ export function FlowTab({
   handleEditFlow,
   handleShowDeleteModal,
   handleSendFlow,
+  handleSendFlowCommand,
   handleAddCommandToFlow,
   handleCopyFlowCommand,
   handleEditFlowCommand,
@@ -94,8 +96,8 @@ export function FlowTab({
     }
   }
 
-  const handleSendCommand = (flow: Flow) => {
-    console.log('Sending command in flow:', flow)
+  const handleSendCommand = (command: AdbCommand) => {
+    handleSendFlowCommand(command)
   }
 
   return (

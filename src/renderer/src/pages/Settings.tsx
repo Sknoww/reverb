@@ -70,7 +70,11 @@ export function Settings() {
 
       <div className="mb-4 w-2/3">
         <Separator className="w-full h-2" />
+        <Button className="mb-4" onClick={handleOpenConfigFile}>
+          Open Config in Editor...
+        </Button>
         <label className="block mb-2">Project Save Location:</label>
+
         <div className="flex items-center gap-2">
           <Input
             type="text"
@@ -80,9 +84,6 @@ export function Settings() {
           />
           <Button className="w-24" onClick={handleSelectLocation}>
             Browse...
-          </Button>
-          <Button className="w-24" onClick={handleOpenConfigFile}>
-            Open...
           </Button>
         </div>
       </div>
