@@ -12,14 +12,7 @@ An Electron app for managing ADB commands
 
 ## Overview
 
-Reverb is a powerful Electron-based desktop application designed to simplify and enhance your Android Debug Bridge (ADB) workflow. With an intuitive interface and customizable command palettes, Reverb makes device management effortless for developers.
-
-## Features
-
-- **Command Management**: Create, organize, and execute ADB commands with a single click
-- **Device Detection**: Automatically detect and manage connected Android devices
-- **Command Groups**: Organize commands into logical groups for better workflow
-- **Cross-Platform**: Available for Windows and macOS
+Reverb lets you simplify and automate ADB commands.
 
 ## Installation
 
@@ -36,46 +29,6 @@ Reverb is a powerful Electron-based desktop application designed to simplify and
 sudo xattr -dr com.apple.quarantine /Applications/Reverb.app
 ```
 
-## Development
-
-### Prerequisites
-- Node.js (v18 or higher)
-- npm or pnpm
-- Git
-
-### Setup
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/reverb.git
-cd reverb
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run dev
-```
-
-### Building
-```bash
-# Build for Windows
-npm run build:win
-
-# Build for macOS
-npm run build:mac
-```
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- [Electron](https://www.electronjs.org/)
-- [React](https://reactjs.org/)
-- [Vite](https://vitejs.dev/)
-- [Tailwind CSS](https://tailwindcss.com/)
-
 ---
 
-Made with ❤️ by Your Name
+Made with ❤️ by Sknow
