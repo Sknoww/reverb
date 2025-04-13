@@ -17,7 +17,8 @@
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
-    "build:mac": "electron-vite build && electron-builder --mac",
+    "verify-resources": "ls -la extraResources/",
+    "build:mac": "npm run verify-resources && electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux"
   },
   "dependencies": {
@@ -82,6 +83,16 @@
       "buildResources": "build",
       "output": "release"
     },
-    "afterPack": "./scripts/after-pack.js"
+    "afterPack": "./scripts/after-pack.js",
+    "mac": {
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "extendInfo": {
+        "NSDocumentsFolderUsageDescription": "Application requires access to the Documents folder.",
+        "NSDownloadsFolderUsageDescription": "Application requires access to the Downloads folder."
+      }
+    }
   }
 }
