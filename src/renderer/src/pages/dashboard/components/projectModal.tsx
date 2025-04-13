@@ -1,4 +1,3 @@
-// ProjectModal.tsx
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -46,7 +45,6 @@ export function ProjectModal({
   const [editedProject, setEditedProject] = useState<Project>(project || { ...defaultProject })
   const isNewProject = !project
 
-  // Reset form when a new project is selected or when switching between edit/create modes
   useEffect(() => {
     if (project) {
       setEditedProject(project)

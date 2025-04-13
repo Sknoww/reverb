@@ -61,11 +61,10 @@ export function FlowCard({
     setLocalFlow(flow)
   }, [flow])
 
-  // Set up sensors for both pointer (mouse/touch) and keyboard interactions
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5 // Minimum distance for drag activation
+        distance: 5
       }
     }),
     useSensor(KeyboardSensor, {
@@ -85,30 +84,24 @@ export function FlowCard({
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      // Create a new array with the reordered commands
       const oldIndex = commandsWithIds.findIndex((command) => command.id === active.id)
       const newIndex = commandsWithIds.findIndex((command) => command.id === over.id)
 
       const newCommands = arrayMove(commandsWithIds, oldIndex, newIndex)
 
-      // Update local state for immediate UI feedback
       setLocalFlow((prev) => ({
         ...prev,
         commands: newCommands
       }))
 
-      // Save the reordered commands to the project
       onReorderCommands(localFlow, newCommands)
     }
   }
 
-  // Make sure each command has a unique id
   const commandsWithIds = localFlow.commands.map((command, index) => {
-    // If the command already has an id, use it; otherwise use the index as a fallback
     return command.id ? command : { ...command, id: `command-${index}` }
   })
 
-  // Get the list of command ids for SortableContext
   const commandIds = commandsWithIds.map((command) => command.id)
 
   return (
@@ -191,9 +184,7 @@ export function FlowCard({
                 <TableRow className="sticky top-0 border-zinc-700 bg-background">
                   <TableHead className="w-[150px]">
                     <div className="flex items-center gap-2">
-                      <div className="w-5 flex-shrink-0">
-                        {/* Empty div to align with the grip icon */}
-                      </div>
+                      <div className="w-5 flex-shrink-0"></div>
                       <span>Name</span>
                     </div>
                   </TableHead>

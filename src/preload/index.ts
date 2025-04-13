@@ -1,4 +1,3 @@
-// src/preload/index.ts (add to your existing preload)
 import { contextBridge, ipcRenderer } from 'electron'
 
 // Expose project management API to renderer
@@ -14,7 +13,6 @@ contextBridge.exposeInMainWorld('adbAPI', {
   executeCommand: (intent, value) => ipcRenderer.invoke('adb:execute', intent, value)
 })
 
-// src/preload/index.ts (add to your existing code)
 contextBridge.exposeInMainWorld('configAPI', {
   getConfig: () => ipcRenderer.invoke('config:get'),
   saveConfig: (config) => ipcRenderer.invoke('config:save', config),

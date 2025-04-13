@@ -1,4 +1,3 @@
-// ProjectSelect.tsx
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -56,24 +55,20 @@ export function ProjectMenu({ projects, currentProject, currentFile }: ProjectMe
 
   const handleSaveProject = async (newProject: Project, isNewProject: boolean) => {
     if (isNewProject) {
-      // Create ID from project name
       const id = newProject.name.replace(/\s/g, '').toLowerCase()
       newProject.id = id
 
-      // Check if project already exists
       const projectExists = await checkForExistingProject(newProject.id)
       if (projectExists) {
         setProjectAlreadyExists(true)
         return
       }
 
-      // Set timestamps for new project
       setProjectAlreadyExists(false)
       newProject.createdAt = new Date().toISOString()
       newProject.updatedAt = new Date().toISOString()
     }
 
-    // Save project and switch to it
     window.projectAPI.saveProject(newProject)
     handleSelectProject(`${newProject.id}.project.json`)
     setModalOpen(false)
@@ -108,7 +103,6 @@ export function ProjectMenu({ projects, currentProject, currentFile }: ProjectMe
       return null
     }
 
-    // Filter out current project and reverse to show most recent first
     const filteredProjects = projects
       .filter((project) => project.id !== currentProject?.id)
       .reverse()

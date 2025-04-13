@@ -19,7 +19,6 @@ export const executeAdbCommand = async (
       adb = app.isPackaged
         ? path.join(process.resourcesPath, 'extraResources', 'adbWin\\adb.exe')
         : path.join(process.cwd(), 'extraResources', 'adbWin\\adb.exe')
-      // Simple approach - just use exec with the basic adb command
     } else if (process.platform === 'darwin') {
       adb = app.isPackaged
         ? path.join(process.resourcesPath, 'extraResources', 'adbMac/adb')

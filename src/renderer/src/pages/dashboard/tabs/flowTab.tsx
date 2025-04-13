@@ -40,7 +40,6 @@ export function FlowTab({
   // Reset scroll position when component mounts or project changes
   useEffect(() => {
     if (scrollContainerRef.current) {
-      // Force scroll to top
       setTimeout(() => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollTop = 0
@@ -91,7 +90,6 @@ export function FlowTab({
 
   const handleReorderCommands = (flow: Flow, commands: AdbCommand[]) => {
     if (project) {
-      // Pass the reordered commands to a handler in Dashboard
       handleReorderFlowCommands(flow, commands)
     }
   }
@@ -106,7 +104,7 @@ export function FlowTab({
       className="h-full overflow-y-auto"
       style={{
         height: '100%',
-        maxHeight: 'calc(100vh - 100px)', // Adjust based on your layout
+        maxHeight: 'calc(100vh - 100px)',
         position: 'relative'
       }}
     >

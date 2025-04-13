@@ -5,7 +5,6 @@ import path from 'path'
 import { Project } from '../types'
 import { loadConfig } from './configManager'
 
-// Instead of a constant, use a variable that can be updated
 let projectsDir = path.join(app.getPath('userData'), 'projects')
 
 // Function to update the projects directory

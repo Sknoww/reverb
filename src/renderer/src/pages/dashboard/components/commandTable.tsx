@@ -1,4 +1,3 @@
-// CommandTable.tsx
 import {
   Table,
   TableBody,

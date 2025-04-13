@@ -1,4 +1,3 @@
-// CommandModal.tsx
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -65,14 +64,11 @@ export function CommandModal({
   const [editedCommand, setEditedCommand] = useState<AdbCommand>(command || { ...defaultCommand })
   const isNewCommand = isAddingNew || !command
 
-  // Reset form when a new command is selected or when switching between edit/create modes
   useEffect(() => {
     if (isOpen) {
       if (command) {
-        // If a command is provided, we're editing
         setEditedCommand(command)
       } else {
-        // No command provided, we're adding a new one
         setEditedCommand({ ...defaultCommand, id: uuid() })
       }
     }
@@ -91,8 +87,6 @@ export function CommandModal({
     e.preventDefault()
 
     if (isForFlow && flow && onSaveToFlow) {
-      // For flow commands, use isNewCommand to distinguish
-      // between adding and editing
       onSaveToFlow(editedCommand, flow, isNewCommand ? null : command)
     } else if (isCommon) {
       isNewCommand ? onSaveCommon(editedCommand) : onSaveCommon(editedCommand, command)
@@ -109,7 +103,6 @@ export function CommandModal({
     return str.charAt(0).toUpperCase() + str.slice(1)
   }
 
-  // Render
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">

@@ -1,4 +1,3 @@
-// src/renderer/src/types/index.ts
 export interface AdbCommand {
   id: string
   name: string

@@ -43,13 +43,10 @@ export function FlowModal({
   const [editedFlow, setEditedFlow] = useState<Flow>(flow || { ...defaultFlow })
   const isNewflow = !flow
 
-  // Reset form when a new flow is selected or when switching between edit/create modes
   useEffect(() => {
     if (flow) {
-      // Preserve the existing flow's ID and other properties
       setEditedFlow(flow)
     } else {
-      // For new flows, generate a new ID
       setEditedFlow({ ...defaultFlow, id: uuid() })
     }
   }, [flow, isOpen])

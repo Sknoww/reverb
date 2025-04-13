@@ -1,4 +1,3 @@
-// Dashboard.tsx
 import { MainContainer } from '@/components/mainContainer'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -19,10 +18,6 @@ import { FlowTab } from './tabs/flowTab'
 
 import logo from '../../assets/icon.png'
 
-/**import logo from '../../resources/icon.png?asset'
- * Dashboard Component
- * Main container for the ADB Command Manager application
- */
 export function Dashboard() {
   // =========================================================================
   // State Management
@@ -114,13 +109,11 @@ export function Dashboard() {
       }
     }
 
-    // Only run if config has been initialized
     if (config.saveLocation) {
       loadSelectedProject()
     }
   }, [config.recentProjectId, projects])
 
-  // Show loading state if needed
   if (isLoading) {
     return <div>Loading settings...</div>
   }
@@ -350,7 +343,6 @@ export function Dashboard() {
       window.projectAPI.saveProject(updatedProject)
       setIsEditingFlow(false)
     } else if (project) {
-      // Check if a flow with the same name already exists
       const flowExists = project.flows.some(
         (flow) => flow.name === updatedFlow.name && flow.id !== updatedFlow.id
       )
@@ -473,15 +465,13 @@ export function Dashboard() {
   const handleDeleteFlowCommand = (flow: Flow, command: AdbCommand) => {
     setSelectedCommand(command)
     setSelectedFlow(flow)
-    setDeleteModalFlowCommandOpen(true) // We'll add this new state
+    setDeleteModalFlowCommandOpen(true)
   }
 
   const handleConfirmDeleteFlowCommand = (command: AdbCommand, flow: Flow) => {
     if (project) {
-      // Find the flow
       const updatedFlows = project.flows.map((f) => {
         if (f.id === flow.id) {
-          // Remove the command from this flow's commands array
           const updatedCommands = f.commands.filter((cmd) => cmd.id !== command.id)
           return {
             ...f,
@@ -491,12 +481,10 @@ export function Dashboard() {
         return f
       })
 
-      // Update the project with the new flows array
       const updatedProject = { ...project, flows: updatedFlows }
       setProject(updatedProject)
       window.projectAPI.saveProject(updatedProject)
 
-      // Close the modal and reset state
       setDeleteModalFlowCommandOpen(false)
       setSelectedCommand(null)
       setSelectedFlow(null)
@@ -525,11 +513,10 @@ export function Dashboard() {
 
   const handleCopyFlowCommand = (flow: Flow, command: AdbCommand) => {
     if (project) {
-      // Create a copy of the command with a new ID
       const commandCopy = {
         ...command,
         id: uuid(),
-        name: `${command.name}` // Optionally add "(Copy)" to differentiate
+        name: `${command.name}`
       }
 
       // Find the flow to update
@@ -562,7 +549,6 @@ export function Dashboard() {
     return new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(resolve, ms)
 
-      // If aborted, clear the timeout and reject
       signal.addEventListener('abort', () => {
         clearTimeout(timeout)
         reject(new Error('Sleep aborted'))
@@ -572,7 +558,6 @@ export function Dashboard() {
 
   // Updated handleSendFlow function
   const handleSendFlow = async (flow: Flow) => {
-    // If this flow is already running, stop it
     if (isFlowRunning && activeFlowId === flow.id && abortController) {
       console.log('Stopping flow execution:', flow.name)
       abortController.abort()
@@ -615,14 +600,12 @@ export function Dashboard() {
           }
         } catch (error) {
           console.error('Error executing command:', error)
-          // Exit if aborted, otherwise continue with next command
           if (controller.signal.aborted) break
         }
       }
     } catch (error) {
       console.error('Flow execution error:', error)
     } finally {
-      // Always reset state when done, regardless of success or failure
       if (activeFlowId === flow.id) {
         setIsFlowRunning(false)
         setActiveFlowId(null)
@@ -645,7 +628,6 @@ export function Dashboard() {
 
   const handleOpenProjectFile = async () => {
     if (project) {
-      // Construct the full path to the project file
       const projectFilePath = `${config.saveLocation}/${project.id}.project.json`
 
       try {
@@ -813,14 +795,14 @@ export function Dashboard() {
       <DeleteModal
         isOpen={deleteModalFlowCommandOpen}
         onClose={handleCloseDeleteModal}
-        onSave={() => {}} // We won't use this
-        onSaveFlow={() => {}} // We won't use this
-        onSaveFlowCommand={handleConfirmDeleteFlowCommand} // We'll create this
+        onSave={() => {}}
+        onSaveFlow={() => {}}
+        onSaveFlowCommand={handleConfirmDeleteFlowCommand}
         command={selectedCommand!}
         flow={selectedFlow!}
         title="Delete Command from Flow"
         message="Are you sure you want to delete this command from the flow?"
-        isFlowCommand={true} // Add this flag
+        isFlowCommand={true}
       />
 
       <FlowModal

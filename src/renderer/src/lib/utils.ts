@@ -13,12 +13,10 @@ export function useNavigationLock(cooldownMs = 300) {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Reset navigation lock when location changes
   useEffect(() => {
     setIsNavigating(false)
   }, [location.pathname])
 
-  // Safe navigation function with built-in lock
   const safeNavigate = (to) => {
     if (isNavigating || to === location.pathname) {
       console.log('Navigation prevented - already navigating or same route')
@@ -28,7 +26,6 @@ export function useNavigationLock(cooldownMs = 300) {
     setIsNavigating(true)
     navigate(to)
 
-    // Extra safety - reset lock after timeout
     setTimeout(() => {
       setIsNavigating(false)
       console.log('Navigation lock released after timeout')

@@ -1,4 +1,3 @@
-// DeleteModal.tsx - Simplified version
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -30,10 +29,10 @@ export function DeleteModal({
   onClose,
   onSave,
   onSaveFlow,
-  onSaveFlowCommand, // Add this
+  onSaveFlowCommand,
   title = 'Delete',
   message = 'Are you sure?',
-  isFlowCommand = false // Add this
+  isFlowCommand = false
 }: DeleteModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

@@ -1,4 +1,3 @@
-// CommandSidebar.tsx
 import {
   DropdownMenu,
   DropdownMenuContent,
