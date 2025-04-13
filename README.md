@@ -34,4 +34,4 @@ sudo xattr -dr com.apple.quarantine /Applications/Reverb.app
 
 ---
 
-Made with ❤️ by Sknow
+Made by Sknow
