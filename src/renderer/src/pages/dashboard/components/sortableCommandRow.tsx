@@ -9,7 +9,7 @@ interface SortableCommandRowProps {
   flow: Flow
   onEditCommand: (flow: Flow, command: AdbCommand) => void
   onDeleteCommand: (flow: Flow, command: AdbCommand) => void
-  onSendCommand: (flow: Flow, command: AdbCommand) => void
+  onSendCommand: (command: AdbCommand) => void
   onCopyCommand: (flow: Flow, command: AdbCommand) => void
 }
 
@@ -33,6 +33,10 @@ export function SortableCommandRow({
     position: 'relative' as const
   }
 
+  const copyValueToClipboard = () => {
+    navigator.clipboard.writeText(command.value)
+  }
+
   return (
     <TableRow
       ref={setNodeRef}
@@ -52,7 +56,7 @@ export function SortableCommandRow({
       <TableCell>{command.type}</TableCell>
       <TableCell className="text-right">{command.description}</TableCell>
       <TableCell className="text-right">
-        <div className="flex items-end justify-end gap-2">
+        <div className="flex items-end justify-end gap-2 ">
           <LuCopy
             size={25}
             onClick={() => onCopyCommand(flow, command)}
@@ -60,6 +64,19 @@ export function SortableCommandRow({
             aria-label="Copy command"
             title="Copy command"
           />
+          <div
+            className="relative cursor-pointer hover:text-blue-500"
+            aria-label="Copy value"
+            title="Copy value"
+            onClick={() => copyValueToClipboard()}
+          >
+            <LuCopy size={25} />
+            <div className="absolute bottom-0 right-0">
+              <div className="text-xs font-bold text-white bg-primary rounded-full w-3 h-3 flex items-center justify-center">
+                V
+              </div>
+            </div>
+          </div>
           <LuCircleMinus
             size={25}
             onClick={() => onDeleteCommand(flow, command)}
@@ -76,7 +93,7 @@ export function SortableCommandRow({
           />
           <LuCirclePlay
             size={25}
-            onClick={() => onSendCommand(flow, command)}
+            onClick={() => onSendCommand(command)}
             className="cursor-pointer hover:text-green-500"
             aria-label="Execute command"
             title="Execute command"

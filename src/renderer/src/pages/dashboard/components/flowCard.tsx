@@ -37,7 +37,7 @@ interface FlowCardProps {
   onEditCommand: (flow: Flow, command: AdbCommand) => void
   onDeleteCommand: (flow: Flow, command: AdbCommand) => void
   onReorderCommands: (flow: Flow, commands: AdbCommand[]) => void
-  onSendCommand: (flow: Flow, command: AdbCommand) => void
+  onSendCommand: (command: AdbCommand) => void
 }
 
 export function FlowCard({

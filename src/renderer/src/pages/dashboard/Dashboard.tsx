@@ -709,6 +709,7 @@ export function Dashboard() {
                 handleShowDeleteModal={handleShowDeleteFlowModal}
                 handleEditFlow={handleEditFlow}
                 handleSendFlow={handleSendFlow}
+                handleSendFlowCommand={handleSendCommand}
                 handleAddCommandToFlow={handleAddCommandToFlow}
                 handleEditFlowCommand={handleEditFlowCommand}
                 handleDeleteFlowCommand={handleDeleteFlowCommand}
