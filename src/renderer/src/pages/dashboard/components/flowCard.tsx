@@ -23,6 +23,7 @@ import {
 import { useEffect, useRef, useState } from 'react'
 import { LuCircleMinus, LuCirclePlay, LuPencil, LuSquare } from 'react-icons/lu'
 import { v4 as uuid } from 'uuid'
+import { useFlowContext } from '../contexts/flowContext'
 import { SortableCommandRow } from './sortableCommandRow'
 
 interface FlowCardProps {
@@ -42,8 +43,6 @@ interface FlowCardProps {
 
 export function FlowCard({
   flow,
-  isFlowRunning,
-  activeFlowId,
   onDeleteFlow,
   onEditFlow,
   onAddCommand,
@@ -54,6 +53,12 @@ export function FlowCard({
   onSendCommand,
   onReorderCommands
 }: FlowCardProps) {
+  // Use the FlowContext directly to get the current flow state
+  const { runningFlowId, isFlowRunning } = useFlowContext()
+
+  // Determine if this specific flow is running
+  const isThisFlowRunning = isFlowRunning && runningFlowId === flow.id
+
   const [localFlow, setLocalFlow] = useState<Flow>(flow)
   const tableRef = useRef<HTMLDivElement>(null)
 
@@ -108,7 +113,7 @@ export function FlowCard({
     <Card className="w-full">
       <CardHeader className="w-full p-2 pb-0">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-row items-center gap-2">
+          <span className="flex flex-row items-center gap-2">
             <span className="text-xl font-bold">{localFlow.name}</span>
             <LuCircleMinus
               size={25}
@@ -124,9 +129,9 @@ export function FlowCard({
               aria-label="Edit command"
               title="Edit command"
             />
-          </div>
-          <div className="flex flex-row items-center">
-            <div className="flex flex-row items-center gap-2 mr-2">
+          </span>
+          <span className="flex flex-row items-center">
+            <span className="flex flex-row items-center gap-2 mr-2">
               <span className="text-lg">Delay (ms):</span>
               <Input
                 id="delay"
@@ -138,14 +143,14 @@ export function FlowCard({
                 onChange={handleInputChange}
                 autoFocus
               />
-            </div>
-            <div className="flex flex-row items-center">
+            </span>
+            <span className="flex flex-row items-center">
               <Button
                 className="h-max w-fit mr-0 rounded-tr-none rounded-br-none"
                 onClick={() => onRunFlow?.(localFlow)}
-                variant={isFlowRunning && activeFlowId === localFlow.id ? 'destructive' : 'default'}
+                variant={isThisFlowRunning ? 'destructive' : 'default'}
               >
-                {isFlowRunning && activeFlowId === localFlow.id ? (
+                {isThisFlowRunning ? (
                   <>
                     Stop Flow <LuSquare />
                   </>
@@ -171,22 +176,22 @@ export function FlowCard({
               >
                 Add Command
               </Button>
-            </div>
-          </div>
+            </span>
+          </span>
         </div>
       </CardHeader>
       <CardContent className="w-full p-2">
-        <div className="flex flex-col w-full gap-2 pb-2">
+        <span className="flex flex-col w-full gap-2 pb-2">
           <Separator />
           <div ref={tableRef} className="max-h-[50vh] overflow-auto">
             <Table>
               <TableHeader className="sticky top-0 z-10">
                 <TableRow className="sticky top-0 border-zinc-700 bg-background">
                   <TableHead className="w-[150px]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 flex-shrink-0"></div>
+                    <span className="flex items-center gap-2">
+                      <span className="w-5 flex-shrink-0"></span>
                       <span>Name</span>
-                    </div>
+                    </span>
                   </TableHead>
                   <TableHead>Keyword</TableHead>
                   <TableHead>Value</TableHead>
@@ -219,7 +224,7 @@ export function FlowCard({
               </DndContext>
             </Table>
           </div>
-        </div>
+        </span>
       </CardContent>
     </Card>
   )

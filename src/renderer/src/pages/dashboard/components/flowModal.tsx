@@ -28,7 +28,7 @@ const defaultFlow: Flow = {
   name: '',
   description: '',
   commands: [],
-  delay: 3000
+  delay: 5000
 }
 
 export function FlowModal({

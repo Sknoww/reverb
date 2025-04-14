@@ -24,7 +24,6 @@ export function SortableCommandRow({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: command.id
   })
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -32,11 +31,9 @@ export function SortableCommandRow({
     zIndex: isDragging ? 1 : 0,
     position: 'relative' as const
   }
-
   const copyValueToClipboard = () => {
     navigator.clipboard.writeText(command.value)
   }
-
   return (
     <TableRow
       ref={setNodeRef}
@@ -44,19 +41,19 @@ export function SortableCommandRow({
       className={`hover:bg-transparent border-zinc-700 ${isDragging ? 'bg-primary-100' : ''}`}
     >
       <TableCell className="font-medium">
-        <div className="flex items-center gap-2">
-          <div {...attributes} {...listeners} className="cursor-grab w-5 flex-shrink-0">
+        <span className="flex items-center gap-2">
+          <span {...attributes} {...listeners} className="cursor-grab w-5 flex-shrink-0">
             <LuGripVertical size={20} />
-          </div>
+          </span>
           <span>{command.name}</span>
-        </div>
+        </span>
       </TableCell>
       <TableCell>{command.keyword}</TableCell>
       <TableCell>{command.value}</TableCell>
       <TableCell>{command.type}</TableCell>
       <TableCell className="text-right">{command.description}</TableCell>
       <TableCell className="text-right">
-        <div className="flex items-end justify-end gap-2 ">
+        <span className="flex items-end justify-end gap-2">
           <LuCopy
             size={25}
             onClick={() => onCopyCommand(flow, command)}
@@ -64,19 +61,19 @@ export function SortableCommandRow({
             aria-label="Copy command"
             title="Copy command"
           />
-          <div
+          <span
             className="relative cursor-pointer hover:text-blue-500"
             aria-label="Copy value"
             title="Copy value"
             onClick={() => copyValueToClipboard()}
           >
             <LuCopy size={25} />
-            <div className="absolute bottom-0 right-0">
-              <div className="text-xs font-bold text-white bg-primary rounded-full w-3 h-3 flex items-center justify-center">
+            <span className="absolute bottom-0 right-0">
+              <span className="text-xs font-bold text-white bg-primary rounded-full w-3 h-3 flex items-center justify-center">
                 V
-              </div>
-            </div>
-          </div>
+              </span>
+            </span>
+          </span>
           <LuCircleMinus
             size={25}
             onClick={() => onDeleteCommand(flow, command)}
@@ -98,7 +95,7 @@ export function SortableCommandRow({
             aria-label="Execute command"
             title="Execute command"
           />
-        </div>
+        </span>
       </TableCell>
     </TableRow>
   )

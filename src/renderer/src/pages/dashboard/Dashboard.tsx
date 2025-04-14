@@ -13,12 +13,24 @@ import { ContextMenu } from './components/contextMenu'
 import { DeleteModal } from './components/deleteModal'
 import { FlowModal } from './components/flowModal'
 import { ProjectMenu } from './components/projectSelect'
+import { FlowProvider, useFlowContext } from './contexts/flowContext'
 import { CommandTab } from './tabs/commandTab'
 import { FlowTab } from './tabs/flowTab'
 
 import logo from '../../assets/icon.png'
 
-export function Dashboard() {
+// Create a wrapper component that uses the FlowContext
+function DashboardContent() {
+  // Get flow context
+  const {
+    runningFlowId,
+    setRunningFlowId,
+    abortController,
+    setAbortController,
+    isFlowRunning,
+    setIsFlowRunning
+  } = useFlowContext()
+
   // =========================================================================
   // State Management
   // =========================================================================
@@ -41,9 +53,6 @@ export function Dashboard() {
   const [deleteModalFlowOpen, setDeleteModalFlowOpen] = useState(false)
   const [deleteModalFlowCommandOpen, setDeleteModalFlowCommandOpen] = useState(false)
   const [flowAlreadyExists, setFlowAlreadyExists] = useState(false)
-  const [isFlowRunning, setIsFlowRunning] = useState<boolean>(false)
-  const [activeFlowId, setActiveFlowId] = useState<string | null>(null)
-  const [abortController, setAbortController] = useState<AbortController | null>(null)
 
   // Command management state
   const [selectedCommand, setSelectedCommand] = useState<AdbCommand | null>(null)
@@ -318,8 +327,10 @@ export function Dashboard() {
     try {
       const output = await window.adbAPI.executeCommand(intent, command.value)
       console.log('Command output:', output)
+      return output
     } catch (error) {
       console.error('Error sending command:', error)
+      throw error
     }
   }
 
@@ -556,29 +567,43 @@ export function Dashboard() {
     })
   }
 
-  // Updated handleSendFlow function
+  // Updated handleSendFlow function using the FlowContext
   const handleSendFlow = async (flow: Flow) => {
-    if (isFlowRunning && activeFlowId === flow.id && abortController) {
+    // Create local variables to capture the current state
+    const flowId = flow.id
+    const currentIsRunning = isFlowRunning
+
+    // Get direct references to the context functions to avoid closure issues
+    const contextSetIsFlowRunning = setIsFlowRunning
+    const contextSetRunningFlowId = setRunningFlowId
+    const contextSetAbortController = setAbortController
+
+    // If this flow is already running, stop it
+    if (currentIsRunning && runningFlowId === flowId && abortController) {
       console.log('Stopping flow execution:', flow.name)
       abortController.abort()
-      setIsFlowRunning(false)
-      setActiveFlowId(null)
-      setAbortController(null)
+
+      // Update the flow context
+      contextSetIsFlowRunning(false)
+      contextSetRunningFlowId(null)
+      contextSetAbortController(null)
       return
     }
 
     // Start flow execution
     console.log('Starting flow execution:', flow.name)
     const controller = new AbortController()
-    setAbortController(controller)
-    setIsFlowRunning(true)
-    setActiveFlowId(flow.id)
+
+    // Update the flow context
+    contextSetIsFlowRunning(true)
+    contextSetRunningFlowId(flowId)
+    contextSetAbortController(controller)
 
     try {
       // Execute each command in sequence
       for (const command of flow.commands) {
         try {
-          // Check if execution has been aborted
+          // Check if execution has been aborted using the controller
           if (controller.signal.aborted) {
             console.log('Flow execution aborted')
             break
@@ -603,20 +628,22 @@ export function Dashboard() {
           if (controller.signal.aborted) break
         }
       }
+      console.log('Flow execution completed normally')
     } catch (error) {
       console.error('Flow execution error:', error)
     } finally {
-      if (activeFlowId === flow.id) {
-        setIsFlowRunning(false)
-        setActiveFlowId(null)
-        setAbortController(null)
-        console.log('Flow execution completed or stopped')
-      }
+      // Always reset state when the flow completes, regardless of context state
+      // This ensures the button state is reset properly
+      console.log('Resetting flow state after completion')
+      contextSetIsFlowRunning(false)
+      contextSetRunningFlowId(null)
+      contextSetAbortController(null)
     }
   }
 
   // Show flow modal
   const handleShowFlowModal = () => {
+    setSelectedFlow(null)
     setFlowModalOpen(true)
   }
 
@@ -716,7 +743,7 @@ export function Dashboard() {
                 handleCopyFlowCommand={handleCopyFlowCommand}
                 handleReorderFlowCommands={handleReorderFlowCommands}
                 isFlowRunning={isFlowRunning}
-                activeFlowId={activeFlowId}
+                activeFlowId={runningFlowId}
               />
             </TabsContent>
           </Tabs>
@@ -815,6 +842,15 @@ export function Dashboard() {
         error={flowAlreadyExists}
       />
     </MainContainer>
+  )
+}
+
+// Main Dashboard component that wraps the content with the FlowProvider
+export function Dashboard() {
+  return (
+    <FlowProvider>
+      <DashboardContent />
+    </FlowProvider>
   )
 }
 

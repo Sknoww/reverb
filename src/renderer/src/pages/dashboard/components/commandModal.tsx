@@ -38,7 +38,7 @@ interface CommandModalProps {
   flow?: Flow | null
   onSave: (command: AdbCommand, prevousCommand?: AdbCommand) => void
   onSaveCommon: (command: AdbCommand, prevousCommand?: AdbCommand) => void
-  onSaveToFlow?: (command: AdbCommand, flow: Flow, previousCommand?: AdbCommand | null) => void // Updated
+  onSaveToFlow?: (command: AdbCommand, flow: Flow, previousCommand?: AdbCommand | null) => void
   isCommon?: boolean
   isForFlow?: boolean
   isAddingNew?: boolean
@@ -166,7 +166,7 @@ export function CommandModal({
               </Label>
               <div className="col-span-3">
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="w-full">
+                  <DropdownMenuTrigger asChild>
                     <Button variant="secondary" className="text-xl w-full justify-start">
                       {capitalizeFirstLetter(editedCommand.type)}
                       <MdKeyboardArrowDown className="ml-auto" />
