@@ -1,6 +1,7 @@
 import { exec } from 'child_process'
 import { app } from 'electron'
 import path from 'path'
+import logger from '../logger'
 
 export interface AdbCommandResult {
   success: boolean
@@ -27,9 +28,11 @@ export const executeAdbCommand = async (
 
     const command = `${adb} shell "am broadcast -a ${intent} --es data \\"${value}\\""`
 
+    logger.info('Executing ADB command:', command)
+
     const adbResult = exec(command, (error, stdout, stderr) => {
       if (error) {
-        console.error('Error executing ADB command:', error)
+        logger.error('Error executing ADB command:', error)
         return {
           success: false,
           error: error.message
@@ -37,13 +40,12 @@ export const executeAdbCommand = async (
       }
 
       if (stderr) {
-        console.error('Error executing ADB command:', stderr)
+        logger.error('Error executing ADB command:', stderr)
         return {
           success: false,
           error: stderr
         }
       }
-      console.log('stdout:', stdout)
       return {
         success: true,
         output: stdout
@@ -51,13 +53,13 @@ export const executeAdbCommand = async (
     })
 
     const result = adbResult.stdout ? adbResult.stdout.toString() : undefined
-
+    logger.info('ADB command result:', result)
     return {
       success: true,
       output: result
     }
   } catch (error: any) {
-    console.error('ADB command failed:', error)
+    logger.error('ADB command failed:', error)
     return {
       success: false,
       error: error.message || 'Unknown error executing ADB command'

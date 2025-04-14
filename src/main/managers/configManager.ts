@@ -1,6 +1,7 @@
 import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
+import logger from '../logger'
 import { AdbCommand, Config } from '../types'
 import { setProjectsDirectory } from './projectManager'
 
@@ -15,17 +16,17 @@ const defaultConfig = {
 export const loadConfig = (): Config => {
   try {
     if (fs.existsSync(configFilePath)) {
-      console.log('Found config file:', configFilePath)
+      logger.info('Found config file:', configFilePath)
       const config = JSON.parse(fs.readFileSync(configFilePath, 'utf-8'))
       setProjectsDirectory(config.saveLocation)
       return config
     }
   } catch (error) {
-    console.error('Failed to load config:', error)
+    logger.error('Failed to load config:', error)
   }
 
   // If we couldn't load settings, create with defaults and save
-  console.log('No config found, creating with defaults')
+  logger.info('No config found, creating with defaults')
   fs.writeFileSync(configFilePath, JSON.stringify(defaultConfig, null, 2))
   return defaultConfig
 }
@@ -40,7 +41,7 @@ export const saveConfig = (config: Config): boolean => {
 
     return true
   } catch (error) {
-    console.error('Failed to save config:', error)
+    logger.error('Failed to save config:', error)
     return false
   }
 }
@@ -52,10 +53,10 @@ export const getConfigFilePath = (): string => {
 export const updateRecentProjectId = (projectId: string): void => {
   const newConfig = { ...loadConfig(), recentProjectId: projectId }
   try {
-    console.log('Updating recent project ID:', projectId)
+    logger.info('Updating recent project ID:', projectId)
     fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2))
   } catch (error) {
-    console.error('Failed to update recent project ID:', error)
+    logger.error('Failed to update recent project ID:', error)
   }
 }
 
@@ -70,11 +71,11 @@ export const updateRecentProjectIds = (previousProjectId: string, newProjectId: 
   mostRecentProjectIds = mostRecentProjectIds.slice(0, 5)
 
   const newConfig = { ...config, mostRecentProjectIds }
-  console.log('Updating most recent project IDs:', mostRecentProjectIds)
+  logger.info('Updating most recent project IDs:', mostRecentProjectIds)
   try {
     fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2))
   } catch (error) {
-    console.error('Failed to update most recent project IDs:', error, newConfig)
+    logger.error('Failed to update most recent project IDs:', error, newConfig)
   }
 }
 
@@ -83,6 +84,6 @@ export const updateCommonCommands = (commands: AdbCommand[]): void => {
   try {
     fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2))
   } catch (error) {
-    console.error('Failed to update common commands:', error, newConfig)
+    logger.error('Failed to update common commands:', error, newConfig)
   }
 }

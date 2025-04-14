@@ -2,6 +2,7 @@
 import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
+import logger from '../logger'
 import { Project } from '../types'
 import { loadConfig } from './configManager'
 
@@ -28,16 +29,17 @@ if (!fs.existsSync(projectsDir)) {
 }
 
 export const saveProject = (project: Project): void => {
+  logger.info('Saving project:', project)
   const filePath = path.join(projectsDir, `${project.id}.project.json`)
   fs.writeFileSync(filePath, JSON.stringify(project, null, 2))
 }
 
 export const getProject = (projectId: string): Project | null => {
-  console.log('Getting project:', projectId)
-  console.log('Projects dir:', projectsDir)
+  logger.info('Getting project:', projectId)
+  logger.info('Projects dir:', projectsDir)
   const filePath = path.join(projectsDir, projectId)
   if (!fs.existsSync(filePath)) return null
-  console.log('Project file path:', filePath)
+  logger.info('Project file path:', filePath)
 
   const projectData = fs.readFileSync(filePath, 'utf-8')
   return JSON.parse(projectData) as Project
@@ -47,6 +49,7 @@ export const getAllProjects = (): Project[] => {
   if (!fs.existsSync(projectsDir)) return []
 
   const config = loadConfig()
+  logger.info('Most recent project IDs:', config.mostRecentProjectIds)
   var projectFiles: string[] = []
   config.mostRecentProjectIds.forEach((projectId) => {
     const filePath = path.join(projectsDir, projectId)
@@ -59,6 +62,8 @@ export const getAllProjects = (): Project[] => {
     projectFiles.push(filePath)
   }
 
+  logger.info('Project files:', projectFiles)
+
   return projectFiles.map((file) => {
     const projectData = fs.readFileSync(path.join(file), 'utf-8')
     return JSON.parse(projectData) as Project
@@ -66,6 +71,7 @@ export const getAllProjects = (): Project[] => {
 }
 
 export const deleteProject = (projectId: string): boolean => {
+  logger.info('Deleting project:', projectId)
   const filePath = path.join(projectsDir, `${projectId}.json`)
   if (!fs.existsSync(filePath)) return false
 

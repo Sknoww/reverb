@@ -1,9 +1,10 @@
 import { dialog, shell } from 'electron'
 import path from 'path'
+import logger from '../logger'
 
 // Select folder dialog
 export const selectFolder = async () => {
-  console.log('Opening folder selection dialog')
+  logger.info('Opening folder selection dialog')
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory'],
     title: 'Select Save Location'
@@ -17,7 +18,7 @@ export const selectFolder = async () => {
 
 // Select file dialog
 export const selectFile = async () => {
-  console.log('Opening file selection dialog')
+  logger.info('Opening file selection dialog')
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openFile'],
     title: 'Select File'
@@ -31,11 +32,11 @@ export const selectFile = async () => {
 
 export const openInEditor = async (filePath: string) => {
   try {
-    console.log('Opening file:', filePath)
+    logger.info('Opening file:', filePath)
     await shell.openPath(filePath)
     return { success: true }
   } catch (error: any) {
-    console.error('Error opening file:', error)
+    logger.error('Error opening file:', error)
     return { success: false, error: error.message }
   }
 }
