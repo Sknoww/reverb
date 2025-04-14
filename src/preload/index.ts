@@ -35,3 +35,7 @@ contextBridge.exposeInMainWorld('dialogAPI', {
   selectFile: () => ipcRenderer.invoke('dialog:selectFile'),
   openInEditor: (filePath) => ipcRenderer.invoke('dialog:openInEditor', filePath)
 })
+
+contextBridge.exposeInMainWorld('loggerAPI', {
+  getLogsDirectory: () => ipcRenderer.invoke('logger:getLogsDirectory')
+})

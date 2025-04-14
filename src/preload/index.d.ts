@@ -29,5 +29,8 @@ declare global {
       selectFolder: () => Promise<string | null>
       openInEditor: (filePath: string) => Promise<string | null>
     }
+    loggerAPI: {
+      getLogsDirectory: () => string
+    }
   }
 }

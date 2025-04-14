@@ -52,6 +52,18 @@ export function Settings() {
     }
   }
 
+  const handleOpenLogsDirectory = async () => {
+    try {
+      const logsDirectory = await window.loggerAPI.getLogsDirectory()
+      console.log('Logs directory:', logsDirectory)
+      if (logsDirectory) {
+        await window.dialogAPI.openInEditor(logsDirectory)
+      }
+    } catch (error: any) {
+      console.error('Error opening logs directory:', error.message)
+    }
+  }
+
   if (isLoading) {
     return <div>Loading settings...</div>
   }
@@ -72,6 +84,9 @@ export function Settings() {
         <Separator className="w-full h-2" />
         <Button className="mb-4" onClick={handleOpenConfigFile}>
           Open Config in Editor...
+        </Button>
+        <Button className="ml-2 mb-4" onClick={handleOpenLogsDirectory}>
+          Open Logs Directory...
         </Button>
         <label className="block mb-2">Project Save Location:</label>
 

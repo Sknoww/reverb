@@ -16,6 +16,7 @@ import {
 } from './managers/configManager'
 import { openInEditor, selectFile, selectFolder } from './managers/dialogManager'
 import { deleteProject, getAllProjects, getProject, saveProject } from './managers/projectManager'
+import { getLogsDirectory } from './logger'
 
 nativeTheme.themeSource = 'dark'
 
@@ -127,6 +128,9 @@ function setupIPC() {
   ipcMain.handle('project:get', (_, projectId) => getProject(projectId))
   ipcMain.handle('project:getAll', () => getAllProjects())
   ipcMain.handle('project:delete', (_, projectId) => deleteProject(projectId))
+
+  // Logger handlers
+  ipcMain.handle('logger:getLogsDirectory', () => getLogsDirectory())
 
   // ADB handlers
   ipcMain.handle('adb:execute', async (_, intent, value) => {
