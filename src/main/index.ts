@@ -5,6 +5,7 @@ import logo from '../../resources/icon.png?asset'
 
 import { execSync } from 'child_process'
 import fs from 'fs'
+import { getLogsDirectory } from './logger'
 import { executeAdbCommand } from './managers/adbManager'
 import {
   getConfigFilePath,
@@ -16,7 +17,7 @@ import {
 } from './managers/configManager'
 import { openInEditor, selectFile, selectFolder } from './managers/dialogManager'
 import { deleteProject, getAllProjects, getProject, saveProject } from './managers/projectManager'
-import { getLogsDirectory } from './logger'
+import { runCollection } from './managers/collectionManager'
 
 nativeTheme.themeSource = 'dark'
 
@@ -131,6 +132,9 @@ function setupIPC() {
 
   // Logger handlers
   ipcMain.handle('logger:getLogsDirectory', () => getLogsDirectory())
+
+  // Collection handlers
+  ipcMain.handle('collection:run', (_, collectionFilePath) => runCollection(collectionFilePath))
 
   // ADB handlers
   ipcMain.handle('adb:execute', async (_, intent, value) => {

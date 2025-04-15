@@ -32,5 +32,8 @@ declare global {
     loggerAPI: {
       getLogsDirectory: () => string
     }
+    collectionAPI: {
+      runCollection: (collectionFilePath: string) => Promise<any>
+    }
   }
 }

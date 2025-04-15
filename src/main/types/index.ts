@@ -1,4 +1,5 @@
 export interface AdbCommand {
+  id: string
   name: string
   keyword: string
   type: string
@@ -22,6 +23,7 @@ export interface Project {
   updatedAt: string
   commands: AdbCommand[]
   flows: Flow[]
+  collections: Collection[]
 }
 
 export interface Config {
@@ -29,4 +31,11 @@ export interface Config {
   recentProjectId: string
   mostRecentProjectIds: string[]
   commonCommands: AdbCommand[]
+}
+
+export interface Collection {
+  id: string
+  name: string
+  description?: string
+  collectionFilePath: string
 }

@@ -39,3 +39,7 @@ contextBridge.exposeInMainWorld('dialogAPI', {
 contextBridge.exposeInMainWorld('loggerAPI', {
   getLogsDirectory: () => ipcRenderer.invoke('logger:getLogsDirectory')
 })
+
+contextBridge.exposeInMainWorld('collectionAPI', {
+  runCollection: (collectionFilePath) => ipcRenderer.invoke('collection:run', collectionFilePath)
+})

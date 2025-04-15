@@ -21,7 +21,8 @@ const defaultProject: Project = {
   createdAt: '',
   updatedAt: '',
   commands: [],
-  flows: []
+  flows: [],
+  collections: []
 }
 
 interface ProjectModalProps {

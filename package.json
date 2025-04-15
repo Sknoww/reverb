@@ -44,6 +44,7 @@
     "electron-router-dom": "^2.1.0",
     "electron-updater": "^6.1.7",
     "lucide-react": "^0.456.0",
+    "newman": "^6.2.1",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.5.0",
     "tailwind-merge": "^2.5.4",

@@ -18,6 +18,7 @@ import { CommandTab } from './tabs/commandTab'
 import { FlowTab } from './tabs/flowTab'
 
 import logo from '../../assets/icon.png'
+import { PostmanTab } from './tabs/postmanTab'
 
 // Create a wrapper component that uses the FlowContext
 function DashboardContent() {
@@ -717,6 +718,13 @@ function DashboardContent() {
                 <TabsTrigger value="flows" className="w-1/2" onClick={() => setTabIsFlows(true)}>
                   Flows
                 </TabsTrigger>
+                <TabsTrigger
+                  value="collections"
+                  className="w-1/2"
+                  onClick={() => setTabIsFlows(false)}
+                >
+                  Collections
+                </TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value="commands" className="mt-0">
@@ -745,6 +753,9 @@ function DashboardContent() {
                 isFlowRunning={isFlowRunning}
                 activeFlowId={runningFlowId}
               />
+            </TabsContent>
+            <TabsContent value="collections">
+              <PostmanTab project={project} />
             </TabsContent>
           </Tabs>
         </div>
