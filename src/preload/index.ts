@@ -10,7 +10,8 @@ contextBridge.exposeInMainWorld('projectAPI', {
 
 // Expose ADB API
 contextBridge.exposeInMainWorld('adbAPI', {
-  executeCommand: (intent, value) => ipcRenderer.invoke('adb:execute', intent, value)
+  executeCommand: (intent, value) => ipcRenderer.invoke('adb:execute', intent, value),
+  executeApplicationReset: () => ipcRenderer.invoke('adb:applicationReset')
 })
 
 contextBridge.exposeInMainWorld('configAPI', {

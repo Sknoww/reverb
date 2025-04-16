@@ -6,7 +6,8 @@ import logo from '../../resources/icon.png?asset'
 import { execSync } from 'child_process'
 import fs from 'fs'
 import { getLogsDirectory } from './logger'
-import { executeAdbCommand } from './managers/adbManager'
+import { executeAdbApplicationReset, executeAdbCommand } from './managers/adbManager'
+import { runCollection } from './managers/collectionManager'
 import {
   getConfigFilePath,
   loadConfig,
@@ -17,7 +18,6 @@ import {
 } from './managers/configManager'
 import { openInEditor, selectFile, selectFolder } from './managers/dialogManager'
 import { deleteProject, getAllProjects, getProject, saveProject } from './managers/projectManager'
-import { runCollection } from './managers/collectionManager'
 
 nativeTheme.themeSource = 'dark'
 
@@ -140,6 +140,14 @@ function setupIPC() {
   ipcMain.handle('adb:execute', async (_, intent, value) => {
     try {
       return await executeAdbCommand(intent, value)
+    } catch (error) {
+      return { error: (error as Error).message }
+    }
+  })
+
+  ipcMain.handle('adb:applicationReset', async () => {
+    try {
+      return await executeAdbApplicationReset()
     } catch (error) {
       return { error: (error as Error).message }
     }
