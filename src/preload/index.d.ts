@@ -11,6 +11,7 @@ declare global {
     }
     adbAPI: {
       executeCommand: (intent: string, value: string) => Promise<string | { error: string }>
+      executeApplicationReset: () => Promise<string | { error: string }>
     }
     configAPI: {
       getConfig: () => Promise<Config>

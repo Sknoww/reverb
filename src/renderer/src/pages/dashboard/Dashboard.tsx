@@ -666,6 +666,20 @@ function DashboardContent() {
   }
 
   // =========================================================================
+  // Application Reset
+  // =========================================================================
+
+  const handleResetClient = async () => {
+    try {
+      const result = await window.adbAPI.executeApplicationReset()
+
+      console.log('Application reset result:', result)
+    } catch (error) {
+      console.error('Error resetting application:', error)
+    }
+  }
+
+  // =========================================================================
   // Render UI
   // =========================================================================
   return (
@@ -691,6 +705,7 @@ function DashboardContent() {
                 <LuRefreshCcw size={20} />
               </div>
               <Button onClick={handleOpenProjectFile}>Open in Editor</Button>
+              <Button onClick={handleResetClient}>Reset Client</Button>
             </div>
             <div className="flex items-center gap-2">
               {tabIsFlows ? (
