@@ -18,7 +18,7 @@ import { CommandTab } from './tabs/commandTab'
 import { FlowTab } from './tabs/flowTab'
 
 import logo from '../../assets/icon.png'
-import { PostmanTab } from './tabs/postmanTab'
+import { CollectionsTab } from './tabs/collectionsTab'
 
 // Create a wrapper component that uses the FlowContext
 function DashboardContent() {
@@ -768,7 +768,7 @@ function DashboardContent() {
               />
             </TabsContent>
             <TabsContent value="collections">
-              <PostmanTab project={project} />
+              <CollectionsTab project={project} />
             </TabsContent>
           </Tabs>
         </div>

@@ -18,7 +18,7 @@ interface CollectionCardProps {
   project: Project | null
 }
 
-export function PostmanTab({ project }: CollectionCardProps) {
+export function CollectionsTab({ project }: CollectionCardProps) {
   const [localProject, setLocalProject] = useState<Project | null>(null)
   const [collections, setCollections] = useState<Collection[]>([])
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null)
