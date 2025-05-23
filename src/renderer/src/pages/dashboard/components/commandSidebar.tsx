@@ -24,6 +24,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useEffect, useRef } from 'react'
 import { BsList, BsThreeDotsVertical } from 'react-icons/bs'
 import { LuCirclePlay, LuCirclePlus } from 'react-icons/lu'
 
@@ -46,6 +47,17 @@ export function CommandSidebar({
   handleReorderCommands,
   handleSendCommand
 }: CommandSidebarProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const isFirstMount = useRef(true)
+
+  useEffect(() => {
+    if (isFirstMount.current && scrollContainerRef.current) {
+      // Force scroll to top immediately on first render
+      scrollContainerRef.current.scrollTop = 0
+      isFirstMount.current = false
+    }
+  }, [])
+
   // Set up sensors for drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -159,9 +171,16 @@ export function CommandSidebar({
   }
 
   return (
-    <>
-      {/* Header */}
-      <div className="flex flex-col w-full h-12 justify-between">
+    <div
+      className="flex flex-col"
+      style={{
+        height: '100%',
+        maxHeight: '100%',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Fixed Header */}
+      <div className="flex flex-col w-full h-12 justify-between flex-shrink-0">
         <span className="flex flex-row h-full justify-between items-center">
           <span className="text-xl">Common</span>
           <span
@@ -174,10 +193,18 @@ export function CommandSidebar({
         <Separator />
       </div>
 
-      {/* Commands List */}
-      <div className="flex flex-col mt-2">
+      {/* Scrollable Commands List */}
+      <div
+        ref={scrollContainerRef}
+        className="overflow-y-auto mt-2 pb-6 pr-1"
+        style={{
+          flex: '1 1 0',
+          minHeight: 0,
+          scrollbarGutter: 'stable'
+        }}
+      >
         <CommandsList />
       </div>
-    </>
+    </div>
   )
 }
