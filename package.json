@@ -1,6 +1,6 @@
 {
   "name": "reverb",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "An electron app for managing ADB commands",
   "main": "./out/main/index.js",
   "author": "Sknow",

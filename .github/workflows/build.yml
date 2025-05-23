@@ -48,8 +48,8 @@ jobs:
           for dmg in release/*.dmg; do
             if [ -f "$dmg" ]; then
               # Create a meaningful name using the version
-              zip "artifacts/MyApp-${VERSION}-macOS.zip" "$dmg" README.md
-              echo "Created MyApp-${VERSION}-macOS.zip"
+              zip "artifacts/reverb-${VERSION}-macOS.zip" "$dmg" README.md
+              echo "Created reverb-${VERSION}-macOS.zip"
             fi
           done
       - name: Prepare Windows artifacts
@@ -66,9 +66,9 @@ jobs:
           function Create-ZipWithReadme {
             param($ExeFile, $Version)
             if (Test-Path $ExeFile) {
-              $zipPath = "artifacts/MyApp-$Version-Windows.zip"
+              $zipPath = "artifacts/reverb-$Version-Windows.zip"
               Compress-Archive -Path $ExeFile, "README.md" -DestinationPath $zipPath -Force
-              Write-Host "Created MyApp-$Version-Windows.zip"
+              Write-Host "Created reverb-$Version-Windows.zip"
             }
           }
 
