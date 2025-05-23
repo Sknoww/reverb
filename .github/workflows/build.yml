@@ -40,49 +40,62 @@ jobs:
         shell: bash
         run: |
           mkdir -p artifacts
+          # Get the version from the git tag (remove 'v' prefix)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Version: $VERSION"
+
           # Create zip with DMG and README for each DMG file found
           for dmg in release/*.dmg; do
             if [ -f "$dmg" ]; then
-              basename_dmg=$(basename "$dmg" .dmg)
-              zip "artifacts/${basename_dmg}-with-readme.zip" "$dmg" README.md
-              echo "Created ${basename_dmg}-with-readme.zip"
+              # Create a meaningful name using the version
+              zip "artifacts/MyApp-${VERSION}-macOS.zip" "$dmg" README.md
+              echo "Created MyApp-${VERSION}-macOS.zip"
             fi
           done
-          # Also copy original files if they exist (preserving original functionality)
-          cp release/*.dmg artifacts/ 2>/dev/null || true
-          cp release/*.zip artifacts/ 2>/dev/null || true
       - name: Prepare Windows artifacts
         if: matrix.os == 'windows-latest'
-        shell: bash
+        shell: pwsh
         run: |
-          mkdir -p artifacts
+          New-Item -ItemType Directory -Path "artifacts" -Force
+
+          # Get the version from the git tag (remove 'v' prefix)
+          $version = $env:GITHUB_REF -replace 'refs/tags/v', ''
+          Write-Host "Version: $version"
+
           # Function to create zip with exe and README
-          create_zip_with_readme() {
-            local exe_file="$1"
-            if [ -f "$exe_file" ]; then
-              local basename_exe=$(basename "$exe_file" .exe)
-              zip "artifacts/${basename_exe}-with-readme.zip" "$exe_file" README.md
-              echo "Created ${basename_exe}-with-readme.zip"
-            fi
+          function Create-ZipWithReadme {
+            param($ExeFile, $Version)
+            if (Test-Path $ExeFile) {
+              $zipPath = "artifacts/MyApp-$Version-Windows.zip"
+              Compress-Archive -Path $ExeFile, "README.md" -DestinationPath $zipPath -Force
+              Write-Host "Created MyApp-$Version-Windows.zip"
+            }
           }
 
           # Try to find installers in multiple locations and create zips
-          if [ -d "release" ]; then
-            for exe in release/*-setup.exe release/*.exe; do
-              create_zip_with_readme "$exe"
-            done
-            # Also copy original files (preserving original functionality)
-            cp release/*-setup.exe artifacts/ 2>/dev/null || echo "No setup.exe files found in release directory"
-            cp release/*.exe artifacts/ 2>/dev/null || echo "No exe files found in release directory"
-          fi
-          if [ -d "dist" ]; then
-            for exe in dist/*-setup.exe dist/*.exe; do
-              create_zip_with_readme "$exe"
-            done
-            # Also copy original files (preserving original functionality)
-            cp dist/*-setup.exe artifacts/ 2>/dev/null || echo "No setup.exe files found in dist directory"
-            cp dist/*.exe artifacts/ 2>/dev/null || echo "No exe files found in dist directory"
-          fi
+          $foundExe = $false
+          if (Test-Path "release") {
+            $setupExes = Get-ChildItem "release" -Filter "*-setup.exe"
+            $regularExes = Get-ChildItem "release" -Filter "*.exe"
+
+            # Prefer setup.exe files, otherwise use regular exe files
+            if ($setupExes) {
+              $setupExes | Select-Object -First 1 | ForEach-Object { Create-ZipWithReadme $_.FullName $version; $foundExe = $true }
+            } elseif ($regularExes) {
+              $regularExes | Select-Object -First 1 | ForEach-Object { Create-ZipWithReadme $_.FullName $version; $foundExe = $true }
+            }
+          }
+          if (-not $foundExe -and (Test-Path "dist")) {
+            $setupExes = Get-ChildItem "dist" -Filter "*-setup.exe"
+            $regularExes = Get-ChildItem "dist" -Filter "*.exe"
+
+            # Prefer setup.exe files, otherwise use regular exe files
+            if ($setupExes) {
+              $setupExes | Select-Object -First 1 | ForEach-Object { Create-ZipWithReadme $_.FullName $version }
+            } elseif ($regularExes) {
+              $regularExes | Select-Object -First 1 | ForEach-Object { Create-ZipWithReadme $_.FullName $version }
+            }
+          }
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
