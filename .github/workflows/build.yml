@@ -1,14 +1,11 @@
 name: Build and Release
-
 on:
   push:
     tags:
       - 'v*'
-
 permissions:
   contents: write
   packages: write
-
 jobs:
   build:
     name: Build (${{ matrix.os }})
@@ -17,74 +14,89 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
         run: npm run build:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build for macOS
         if: matrix.os == 'macos-latest'
         run: npm run build:mac
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Prepare macOS artifacts
         if: matrix.os == 'macos-latest'
+        shell: bash
         run: |
           mkdir -p artifacts
-          cp release/*.dmg artifacts/ || true
-          cp release/*.zip artifacts/ || true
-
+          # Create zip with DMG and README for each DMG file found
+          for dmg in release/*.dmg; do
+            if [ -f "$dmg" ]; then
+              basename_dmg=$(basename "$dmg" .dmg)
+              zip "artifacts/${basename_dmg}-with-readme.zip" "$dmg" README.md
+              echo "Created ${basename_dmg}-with-readme.zip"
+            fi
+          done
+          # Also copy original files if they exist (preserving original functionality)
+          cp release/*.dmg artifacts/ 2>/dev/null || true
+          cp release/*.zip artifacts/ 2>/dev/null || true
       - name: Prepare Windows artifacts
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           mkdir -p artifacts
-          # Try to find installers in multiple locations
+          # Function to create zip with exe and README
+          create_zip_with_readme() {
+            local exe_file="$1"
+            if [ -f "$exe_file" ]; then
+              local basename_exe=$(basename "$exe_file" .exe)
+              zip "artifacts/${basename_exe}-with-readme.zip" "$exe_file" README.md
+              echo "Created ${basename_exe}-with-readme.zip"
+            fi
+          }
+
+          # Try to find installers in multiple locations and create zips
           if [ -d "release" ]; then
+            for exe in release/*-setup.exe release/*.exe; do
+              create_zip_with_readme "$exe"
+            done
+            # Also copy original files (preserving original functionality)
             cp release/*-setup.exe artifacts/ 2>/dev/null || echo "No setup.exe files found in release directory"
             cp release/*.exe artifacts/ 2>/dev/null || echo "No exe files found in release directory"
           fi
-
           if [ -d "dist" ]; then
+            for exe in dist/*-setup.exe dist/*.exe; do
+              create_zip_with_readme "$exe"
+            done
+            # Also copy original files (preserving original functionality)
             cp dist/*-setup.exe artifacts/ 2>/dev/null || echo "No setup.exe files found in dist directory"
             cp dist/*.exe artifacts/ 2>/dev/null || echo "No exe files found in dist directory"
           fi
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-artifacts
           path: artifacts/
-
   release:
     name: Create Release
     needs: build
     runs-on: ubuntu-latest
-
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
-
       - name: List downloaded files
         run: find . -type f | sort
-
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
